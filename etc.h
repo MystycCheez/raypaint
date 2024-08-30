@@ -10,7 +10,6 @@ enum Tool {
 typedef struct Brush {
     Image image;
     Rectangle rect;
-    Vector2 pos;
 }Brush;
 
 #endif

@@ -17,7 +17,7 @@ void DrawBrush(Image canvas_image, Brush brush, Vector2 mousePos_old, Vector2 mo
         float dist_start_and_finish = Vector2Distance(mousePos_old, mousePos_cur);
         for (int i = 0; i < (int)dist_start_and_finish; i++)
         {
-            brushPos = Vector2MoveTowards(brushPos, mousePos_cur, 1.0);
+            brushPos = Vector2MoveTowards(brushPos, mousePos_cur, 4.0);
             Brush_dest_rect.x = brushPos.x;
             Brush_dest_rect.y = brushPos.y;
             ImageDraw(&canvas_image, brush.image, brush.rect, Brush_dest_rect, WHITE);
@@ -33,19 +33,16 @@ void DrawBrushCursor(Image canvas_image, Brush brush, Vector2 mousePos)
     ImageDraw(&canvas_image, brush.image, brush.rect, Brush_dest_rect, WHITE);
 }
 
-Brush InitBrush()
+Brush InitBrush(Vector2 size)
 {
     Brush brush;
 
-    brush.image = GenImageColor(8, 8, RAYWHITE);
+    brush.image = GenImageColor(size.x, size.y, RAYWHITE);
 
     brush.rect.x = 0;
     brush.rect.y = 0;
     brush.rect.width = brush.image.width;
     brush.rect.height = brush.image.height;
-
-    brush.pos.x = brush.rect.x;
-    brush.pos.y = brush.rect.y;
 
     return brush;
 }
