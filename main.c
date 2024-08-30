@@ -9,42 +9,53 @@ int main(void)
     const int screenWidth  = 320 * 5;
     const int screenHeight = 200 * 5;
 
-    Image Canvas_image = GenImageColor(screenWidth, screenHeight, DARKGREEN);
+    Image canvas_image = GenImageColor(screenWidth, screenHeight, DARKGREEN);
 
     Brush brush = InitBrush();
+    Image cursor_image = brush.image;
 
     Vector2 mousePos_cur;
 
     InitWindow(screenWidth, screenHeight, "raylib paint");
     assert(IsWindowReady());
+
+    SetMousePosition(screenWidth / 2, screenHeight / 2);
     
     SetTargetFPS(144);
 
     while(!WindowShouldClose())
     {
+        HideCursor();
+
         Vector2 mousePos_old = mousePos_cur;
 
         if (IsKeyDown(KEY_C)) {
-            ImageClearBackground(&Canvas_image, DARKGREEN);
+            ImageClearBackground(&canvas_image, DARKGREEN);
         }
 
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         mousePos_cur = GetMousePosition();
-
-        DrawBrush(Canvas_image, brush, mousePos_old, mousePos_cur);
-
+        DrawBrush(canvas_image, brush, mousePos_old, mousePos_cur);
         } else if (IsMouseButtonUp(MOUSE_LEFT_BUTTON)) {
             mousePos_cur = GetMousePosition();
         }
-        
+
         BeginDrawing();
 
         // DrawText("test", screenHeight + 40, 40, 40, RAYWHITE);
-        Texture2D Canvas_texture = LoadTextureFromImage(Canvas_image);
-        DrawTexture(Canvas_texture, 0, 0, WHITE);
+        Texture2D canvas_texture = LoadTextureFromImage(canvas_image);
+        Texture2D cursor_texture = LoadTextureFromImage(cursor_image);
+
+        DrawTexture(canvas_texture, 0, 0, WHITE);
+        DrawTexture(cursor_texture, mousePos_cur.x, mousePos_cur.y, WHITE);
+
+        if (IsKeyDown(KEY_F1)) {
+            DrawText("Press C to Clear", 20, 20, 30, GREEN);
+        }
 
         EndDrawing();
-        UnloadTexture(Canvas_texture);
+        UnloadTexture(canvas_texture);
+        UnloadTexture(cursor_texture);
     }
 
     CloseWindow();
