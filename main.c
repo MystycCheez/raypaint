@@ -9,11 +9,13 @@ int main(void)
     const int screenWidth  = 320 * 5;
     const int screenHeight = 200 * 5;
 
-    float brush_scale = 1.0;
+    const int brushSize = 10;
+
+    bool toggle_f1;
 
     Image canvas_image = GenImageColor(screenWidth, screenHeight, DARKGREEN);
 
-    Brush brush = InitBrush((Vector2){16, 16});
+    Brush brush = InitBrush(brushSize);
     Image cursor_image = brush.image;
 
     Vector2 mousePos_cur;
@@ -33,12 +35,6 @@ int main(void)
 
         Vector2 mousePos_old = mousePos_cur;
 
-        if (IsKeyDown(KEY_LEFT_SHIFT)) {
-            if (0 != mouseWheelMove) {
-                brush_scale += mouseWheelMove * 0.1;
-            }
-        }
-
         if (IsKeyDown(KEY_C)) {
             ImageClearBackground(&canvas_image, DARKGREEN);
         }
@@ -52,16 +48,28 @@ int main(void)
 
         BeginDrawing();
 
-        // DrawText("test", screenHeight + 40, 40, 40, RAYWHITE);
         Texture2D canvas_texture = LoadTextureFromImage(canvas_image);
         Texture2D cursor_texture = LoadTextureFromImage(cursor_image);
 
         DrawTexture(canvas_texture, 0, 0, WHITE);
-        DrawTextureEx(cursor_texture, mousePos_cur, 0.0, brush_scale, WHITE);
 
-        if (IsKeyDown(KEY_F1)) {
+        if (IsKeyPressed(KEY_F1)) {
+            toggle_f1 = !toggle_f1;
+        }
+        if (toggle_f1) {
             DrawText("Press C to Clear", 20, 20, 30, RAYWHITE);
         }
+
+        if (IsKeyDown(KEY_LEFT_SHIFT)) {
+            DrawText(TextFormat("%2.1f", brush.scale), 
+            mousePos_cur.x + 10, mousePos_cur.y - 30, 30, RAYWHITE);
+            if (0 != mouseWheelMove) {
+                brush.scale += mouseWheelMove * 0.1;
+                brush.scale = Clamp(brush.scale, 0.1, 10.0);
+            }
+        }
+
+        DrawTextureEx(cursor_texture, mousePos_cur, 0.0, brush.scale, WHITE);
 
         EndDrawing();
         UnloadTexture(canvas_texture);
