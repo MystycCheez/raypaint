@@ -3,24 +3,24 @@
 
 #include "etc.h"
 
-void DrawBrush(Image canvas_image, Brush brush, Vector2 mousePos_old, Vector2 mousePos_cur)
+void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
 {
-    Vector2 brushPos = mousePos_old;
+    Vector2 brushPos = mousePos.old;
 
     Rectangle brush_dest_rect =
-    {mousePos_cur.x, mousePos_cur.y, brush.scale * brush.size, brush.scale * brush.size};
+    {mousePos.current.x, mousePos.current.y, brush.scale * brush.size, brush.scale * brush.size};
 
     if (Vector2Equals((Vector2){0, 0}, GetMouseDelta())) {
-        ImageDraw(&canvas_image, brush.image, brush.rect, brush_dest_rect, WHITE);
+        ImageDraw(&canvas.image, brush.image, brush.rect, brush_dest_rect, WHITE);
     }
     else {
-        float dist_start_and_finish = Vector2Distance(mousePos_old, mousePos_cur);
+        float dist_start_and_finish = Vector2Distance(mousePos.old, mousePos.current);
         for (float i = 0.0; i < dist_start_and_finish;)
         {
-            brushPos = Vector2MoveTowards(brushPos, mousePos_cur, brush.scale);
+            brushPos = Vector2MoveTowards(brushPos, mousePos.current, brush.scale);
             brush_dest_rect.x = brushPos.x;
             brush_dest_rect.y = brushPos.y;
-            ImageDraw(&canvas_image, brush.image, brush.rect, brush_dest_rect, WHITE);
+            ImageDraw(&canvas.image, brush.image, brush.rect, brush_dest_rect, WHITE);
 
             i = i + (brush.scale);
         }

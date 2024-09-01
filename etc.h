@@ -21,8 +21,18 @@ typedef struct Brush {
     float scale;
 }Brush;
 typedef struct MousePos {
-    Vector2 old;
     Vector2 current;
+    Vector2 old;
 }MousePos;
+typedef struct Cursor {
+    MousePos pos;
+    Image image;
+    Texture2D texture;
+}Cursor;
+typedef struct Canvas {
+    Image image;
+    Texture2D texture;
+    Color color;
+}Canvas;
 
 #endif

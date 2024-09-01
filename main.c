@@ -4,18 +4,20 @@ int main(void)
 {
     SetTraceLogLevel(LOG_WARNING);
 
-    // unsigned int ToolState = TOOL_BRUSH;
+    unsigned int ToolState = TOOL_BRUSH;
 
     const int brushSize = 10;
 
     bool toggle_f1;
 
-    Image canvas_image = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, DARKGREEN);
+    Canvas canvas;
+    canvas.image = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, DARKGREEN);
+    canvas.color = DARKGREEN;
 
     Brush brush = InitBrush(brushSize, BRUSH_SQUARE);
-    Image cursor_image = brush.image;
 
-    MousePos mousePos;
+    Cursor cursor;
+    cursor.image = brush.image;
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
     assert(IsWindowReady());
@@ -26,57 +28,76 @@ int main(void)
 
     while(!WindowShouldClose())
     {
-        int mouseWheelMove = (int)GetMouseWheelMove();
-
         HideCursor();
 
-        mousePos.old = mousePos.current;
+        cursor.pos.old = cursor.pos.current;
+
+        int mouseWheelMove = (int)GetMouseWheelMove();
 
         if (IsKeyDown(KEY_C)) {
-            ImageClearBackground(&canvas_image, DARKGREEN);
+            ImageClearBackground(&canvas.image, canvas.color);
         }
         if (IsKeyDown(KEY_R)) {
             brush.scale = 1.0;
         }
+        if (IsKeyDown(KEY_B)) {
+            ToolState = TOOL_BRUSH;
+        }
+        if (IsKeyDown(KEY_E)) {
+            ToolState = TOOL_ERASE;
+        }
 
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-        mousePos.current = GetMousePosition();
+        cursor.pos.current = GetMousePosition();
 
-        DrawBrush(canvas_image, brush, mousePos.old, mousePos.current);
+        switch (ToolState)
+        {
+        case TOOL_BRUSH:
+            DrawBrush(canvas, brush, cursor.pos);
+            break;
+        case TOOL_ERASE:
+            DrawBrush(canvas, brush, cursor.pos);
+            break;
+        default:
+            DrawBrush(canvas, brush, cursor.pos);
+            break;
+        }
         // DrawBrush2();
 
         } else if (IsMouseButtonUp(MOUSE_LEFT_BUTTON)) {
-            mousePos.current = GetMousePosition();
+            cursor.pos.current = GetMousePosition();
         }
 
         BeginDrawing();
 
-        Texture2D canvas_texture = LoadTextureFromImage(canvas_image);
-        Texture2D cursor_texture = LoadTextureFromImage(cursor_image);
+        canvas.texture = LoadTextureFromImage(canvas.image);
+        cursor.texture = LoadTextureFromImage(cursor.image);
 
-        DrawTexture(canvas_texture, 0, 0, WHITE);
+        DrawTexture(canvas.texture, 0, 0, WHITE);
 
         if (IsKeyPressed(KEY_F1)) {
             toggle_f1 = !toggle_f1;
         }
         if (toggle_f1) {
             DrawText("Press C to Clear", 20, 20, 30, RAYWHITE);
+            DrawText("Press Shift + Scroll Wheel to change brush size", 20, 50, 30, RAYWHITE);
+            DrawText("Press R to Reset brush size", 20, 80, 30, RAYWHITE);
         }
 
-        if (IsKeyDown(KEY_LEFT_SHIFT)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
             DrawText(TextFormat("%1.f", brush.scale * 10), 
-            mousePos.current.x + 10, mousePos.current.y - 30, 30, RAYWHITE);
+            cursor.pos.current.x + 10, cursor.pos.current.y - 30, 30, RAYWHITE);
             if (0 != mouseWheelMove) {
                 brush.scale += mouseWheelMove * 0.1;
                 brush.scale = Clamp(brush.scale, 0.1, 3.0);
             }
         }
 
-        DrawTextureEx(cursor_texture, mousePos.current, 0.0, brush.scale, WHITE);
+        DrawTextureEx(cursor.texture, cursor.pos.current, 0.0, brush.scale, WHITE);
 
         EndDrawing();
-        UnloadTexture(canvas_texture);
-        UnloadTexture(cursor_texture);
+        UnloadTexture(canvas.texture);
+        UnloadTexture(cursor.texture);
     }
 
     CloseWindow();
