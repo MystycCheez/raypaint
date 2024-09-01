@@ -6,24 +6,21 @@ int main(void)
 
     // unsigned int ToolState = TOOL_BRUSH;
 
-    const int screenWidth  = 320 * 5;
-    const int screenHeight = 200 * 5;
-
     const int brushSize = 10;
 
     bool toggle_f1;
 
-    Image canvas_image = GenImageColor(screenWidth, screenHeight, DARKGREEN);
+    Image canvas_image = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, DARKGREEN);
 
-    Brush brush = InitBrush(brushSize);
+    Brush brush = InitBrush(brushSize, BRUSH_SQUARE);
     Image cursor_image = brush.image;
 
-    Vector2 mousePos_cur;
+    MousePos mousePos;
 
-    InitWindow(screenWidth, screenHeight, "raylib paint");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
     assert(IsWindowReady());
 
-    SetMousePosition(screenWidth / 2, screenHeight / 2);
+    SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
     
     SetTargetFPS(144);
 
@@ -33,17 +30,23 @@ int main(void)
 
         HideCursor();
 
-        Vector2 mousePos_old = mousePos_cur;
+        mousePos.old = mousePos.current;
 
         if (IsKeyDown(KEY_C)) {
             ImageClearBackground(&canvas_image, DARKGREEN);
         }
+        if (IsKeyDown(KEY_R)) {
+            brush.scale = 1.0;
+        }
 
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-        mousePos_cur = GetMousePosition();
-        DrawBrush(canvas_image, brush, mousePos_old, mousePos_cur);
+        mousePos.current = GetMousePosition();
+
+        DrawBrush(canvas_image, brush, mousePos.old, mousePos.current);
+        // DrawBrush2();
+
         } else if (IsMouseButtonUp(MOUSE_LEFT_BUTTON)) {
-            mousePos_cur = GetMousePosition();
+            mousePos.current = GetMousePosition();
         }
 
         BeginDrawing();
@@ -61,15 +64,15 @@ int main(void)
         }
 
         if (IsKeyDown(KEY_LEFT_SHIFT)) {
-            DrawText(TextFormat("%2.1f", brush.scale), 
-            mousePos_cur.x + 10, mousePos_cur.y - 30, 30, RAYWHITE);
+            DrawText(TextFormat("%1.f", brush.scale * 10), 
+            mousePos.current.x + 10, mousePos.current.y - 30, 30, RAYWHITE);
             if (0 != mouseWheelMove) {
                 brush.scale += mouseWheelMove * 0.1;
-                brush.scale = Clamp(brush.scale, 0.1, 10.0);
+                brush.scale = Clamp(brush.scale, 0.1, 3.0);
             }
         }
 
-        DrawTextureEx(cursor_texture, mousePos_cur, 0.0, brush.scale, WHITE);
+        DrawTextureEx(cursor_texture, mousePos.current, 0.0, brush.scale, WHITE);
 
         EndDrawing();
         UnloadTexture(canvas_texture);
