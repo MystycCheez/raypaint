@@ -8,11 +8,11 @@ int main(void)
 
     const int brushSize = 10;
 
-    bool toggle_f1;
+    bool toggle_f1 = true;
 
     Canvas canvas;
-    canvas.image = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, DARKGREEN);
     canvas.color = DARKGREEN;
+    canvas.image = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, canvas.color);
 
     Brush brush = InitBrush(brushSize, BRUSH_SQUARE);
 
@@ -53,12 +53,11 @@ int main(void)
         switch (ToolState)
         {
         case TOOL_BRUSH:
+            brush.image = GenImageColor(brush.image.width, brush.image.height, RAYWHITE);
             DrawBrush(canvas, brush, cursor.pos);
             break;
         case TOOL_ERASE:
-            DrawBrush(canvas, brush, cursor.pos);
-            break;
-        default:
+            brush.image = GenImageColor(brush.image.width, brush.image.height, canvas.color);
             DrawBrush(canvas, brush, cursor.pos);
             break;
         }
@@ -79,9 +78,12 @@ int main(void)
             toggle_f1 = !toggle_f1;
         }
         if (toggle_f1) {
-            DrawText("Press C to Clear", 20, 20, 30, RAYWHITE);
-            DrawText("Press Shift + Scroll Wheel to change brush size", 20, 50, 30, RAYWHITE);
-            DrawText("Press R to Reset brush size", 20, 80, 30, RAYWHITE);
+            DrawText("Shift + Scroll Wheel - Change brush size", 20, 20, 30, RAYWHITE);
+            DrawText("C - Clear", 20, 50, 30, RAYWHITE);
+            DrawText("R - Reset brush size", 20, 80, 30, RAYWHITE);
+            DrawText("B - Brush", 20, 110, 30, RAYWHITE);
+            DrawText("E - Erase", 20, 140, 30, RAYWHITE);
+            DrawText("F1 - Toggle this text", 20, 170, 30, RAYWHITE);
         }
 
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
