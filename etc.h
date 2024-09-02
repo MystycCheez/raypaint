@@ -17,7 +17,6 @@ enum BrushType {
 typedef struct Brush {
     Image image;
     int size;
-    float scale;
 }Brush;
 typedef struct Canvas {
     Image image;

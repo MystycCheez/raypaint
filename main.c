@@ -38,7 +38,7 @@ int main(void)
             ImageClearBackground(&canvas.image, canvas.color);
         }
         if (IsKeyDown(KEY_R)) {
-            brush.scale = 1.0;
+            brush.size = 10;
         }
         if (IsKeyDown(KEY_B)) {
             ToolState = TOOL_BRUSH;
@@ -87,15 +87,15 @@ int main(void)
         }
 
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
-            DrawText(TextFormat("%1.f", brush.scale * 10), 
+            DrawText(TextFormat("%d", brush.size), 
             cursor.pos.current.x + 10, cursor.pos.current.y - 30, 30, RAYWHITE);
             if (0 != mouseWheelMove) {
-                brush.scale += mouseWheelMove * 0.1;
-                brush.scale = Clamp(brush.scale, 0.1, 3.0);
+                brush.size += mouseWheelMove;
+                brush.size = Clamp(brush.size, 1, 30);
             }
         }
 
-        DrawTextureEx(cursor.texture, cursor.pos.current, 0.0, brush.scale, WHITE);
+        DrawTextureEx(cursor.texture, cursor.pos.current, 0.0, (float)brush.size / 10.0, WHITE);
 
         EndDrawing();
         UnloadTexture(canvas.texture);

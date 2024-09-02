@@ -10,7 +10,7 @@ void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
     Rectangle brush_src_rect = 
     {0, 0, brush.image.width, brush.image.height};
     Rectangle brush_dest_rect =
-    {mousePos.current.x, mousePos.current.y, brush.scale * brush.size, brush.scale * brush.size};
+    {mousePos.current.x, mousePos.current.y, brush.size, brush.size};
 
     if (Vector2Equals((Vector2){0, 0}, GetMouseDelta())) {
         ImageDraw(&canvas.image, brush.image, brush_src_rect, brush_dest_rect, WHITE);
@@ -19,31 +19,30 @@ void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
         float dist_start_and_finish = Vector2Distance(mousePos.old, mousePos.current);
         for (float i = 0.0; i < dist_start_and_finish;)
         {
-            brushPos = Vector2MoveTowards(brushPos, mousePos.current, brush.scale);
+            brushPos = Vector2MoveTowards(brushPos, mousePos.current, (float)brush.size / 10);
             brush_dest_rect.x = brushPos.x;
             brush_dest_rect.y = brushPos.y;
             ImageDraw(&canvas.image, brush.image, brush_src_rect, brush_dest_rect, WHITE);
 
-            i = i + (brush.scale);
+            i = i + ((float)brush.size / 10);
         }
     }
 }
 
-Brush InitBrush(int size, int Brush_Type)
+Brush InitBrush(int size, int brush_type)
 {
     Brush brush;
-
     brush.size = size;
-    brush.scale = 1.0;
 
-    switch (Brush_Type)
+    switch (brush_type)
     {
     case BRUSH_SQUARE:
         brush.image = GenImageColor(brush.size, brush.size, RAYWHITE);
         break;
     case BRUSH_ROUND:
-        brush.image = GenImageColor(brush.size, brush.size, (Color){0, 0, 0, 0});
-        ImageDrawCircleV(&brush.image, (Vector2){brush.size / 2, brush.size / 2}, brush.size / 2, RAYWHITE);
+        ImageDrawCircleV(&brush.image,
+        (Vector2){256, 256}, 256, RAYWHITE);
+        ImageResize(&brush.image, size, size);
         break;
     }
 
