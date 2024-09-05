@@ -4,15 +4,7 @@
 #define SCREEN_WIDTH 320 * 5
 #define SCREEN_HEIGHT 200 * 5
 
-enum Tool {
-    TOOL_BRUSH,
-    TOOL_ERASE,
-    TOOL_FILL
-};
-enum BrushType {
-    BRUSH_SQUARE,
-    BRUSH_ROUND,
-};
+#define DEFAULT_BRUSH_SIZE 10
 
 typedef struct Brush {
     Image image;

@@ -29,22 +29,11 @@ void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
     }
 }
 
-Brush InitBrush(int size, int brush_type)
+Brush InitBrush(Image brush_image, int size)
 {
     Brush brush;
     brush.size = size;
-
-    switch (brush_type)
-    {
-    case BRUSH_SQUARE:
-        brush.image = GenImageColor(brush.size, brush.size, RAYWHITE);
-        break;
-    case BRUSH_ROUND:
-        ImageDrawCircleV(&brush.image,
-        (Vector2){256, 256}, 256, RAYWHITE);
-        ImageResize(&brush.image, size, size);
-        break;
-    }
+    brush.image = brush_image;
 
     return brush;
 }

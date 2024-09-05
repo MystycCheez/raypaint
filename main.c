@@ -4,17 +4,15 @@ int main(void)
 {
     SetTraceLogLevel(LOG_WARNING);
 
-    unsigned int ToolState = TOOL_BRUSH;
-
-    const int brushSize = 10;
-
     bool toggle_f1 = true;
 
     Canvas canvas;
     canvas.color = DARKGREEN;
     canvas.image = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, canvas.color);
 
-    Brush brush = InitBrush(brushSize, BRUSH_SQUARE);
+    Image square = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, RAYWHITE);
+
+    Brush brush = InitBrush(square, DEFAULT_BRUSH_SIZE);
 
     Cursor cursor;
     cursor.image = brush.image;
@@ -40,33 +38,17 @@ int main(void)
         if (IsKeyDown(KEY_R)) {
             brush.size = 10;
         }
-        if (IsKeyDown(KEY_B)) {
-            ToolState = TOOL_BRUSH;
-        }
-        if (IsKeyDown(KEY_E)) {
-            ToolState = TOOL_ERASE;
-        }
 
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         cursor.pos.current = GetMousePosition();
 
-        switch (ToolState)
-        {
-        case TOOL_BRUSH:
-            brush.image = GenImageColor(brush.image.width, brush.image.height, RAYWHITE);
-            DrawBrush(canvas, brush, cursor.pos);
-            break;
-        case TOOL_ERASE:
-            brush.image = GenImageColor(brush.image.width, brush.image.height, canvas.color);
-            DrawBrush(canvas, brush, cursor.pos);
-            break;
-        }
-        // DrawBrush2();
+        DrawBrush(canvas, brush, cursor.pos);
 
         } else if (IsMouseButtonUp(MOUSE_LEFT_BUTTON)) {
             cursor.pos.current = GetMousePosition();
         }
 
+        // Begin Drawing //
         BeginDrawing();
 
         canvas.texture = LoadTextureFromImage(canvas.image);
