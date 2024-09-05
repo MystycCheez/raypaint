@@ -5,10 +5,11 @@ int main(void)
     SetTraceLogLevel(LOG_WARNING);
 
     bool toggle_f1 = true;
+    bool cursorWithinCanvas = false;
 
-    Canvas canvas;
-    canvas.color = DARKGREEN;
-    canvas.image = GenImageColor(SCREEN_WIDTH, SCREEN_HEIGHT, canvas.color);
+    Background background = InitBackground();
+
+    Canvas canvas = InitCanvas(DARKGREEN);
 
     Image square = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, RAYWHITE);
 
@@ -29,7 +30,11 @@ int main(void)
 
     while(!WindowShouldClose())
     {
-        HideCursor();
+        cursorWithinCanvas = CheckCollisionPointRec(cursor.pos.current, 
+        (Rectangle){CANVAS_OFFSET, CANVAS_OFFSET, CANVAS_WIDTH, CANVAS_HEIGHT});
+        if (cursorWithinCanvas) {
+            HideCursor();
+        } else {ShowCursor();}
 
         cursor.pos.old = cursor.pos.current;
 
@@ -54,21 +59,22 @@ int main(void)
         // Begin Drawing //
         BeginDrawing();
 
+        background.texture = LoadTextureFromImage(background.image);
         canvas.texture = LoadTextureFromImage(canvas.image);
         cursor.texture = LoadTextureFromImage(cursor.image);
 
-        DrawTexture(canvas.texture, 0, 0, WHITE);
+        DrawTexture(canvas.texture, CANVAS_OFFSET, CANVAS_OFFSET, WHITE);
 
         if (IsKeyPressed(KEY_F1)) {
             toggle_f1 = !toggle_f1;
         }
         if (toggle_f1) {
             DrawText("Shift + Scroll Wheel - Change brush size", 20, 20, 30, RAYWHITE);
-            DrawText("C - Clear", 20, 50, 30, RAYWHITE);
-            DrawText("R - Reset brush size", 20, 80, 30, RAYWHITE);
-            DrawText("B - Brush", 20, 110, 30, RAYWHITE);
-            DrawText("E - Erase", 20, 140, 30, RAYWHITE);
-            DrawText("F1 - Toggle this text", 20, 170, 30, RAYWHITE);
+            DrawText("C                         - Clear", 20, 50, 30, RAYWHITE);
+            DrawText("R                         - Reset brush size", 20, 80, 30, RAYWHITE);
+            DrawText("B                         - Brush", 20, 110, 30, RAYWHITE);
+            DrawText("E                         - Erase", 20, 140, 30, RAYWHITE);
+            DrawText("F1                        - Toggle this text", 20, 170, 30, RAYWHITE);
         }
 
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
@@ -81,9 +87,14 @@ int main(void)
             }
         }
 
-        DrawTextureEx(cursor.texture, cursor.pos.current, 0.0, (float)brush.size / brush.image.width, WHITE);
+        if (cursorWithinCanvas) {
+            DrawTextureEx(cursor.texture, cursor.pos.current,
+            0.0, (float)brush.size / brush.image.width, WHITE);
+        }
+        DrawTexture(background.texture, 0, 0, WHITE);
 
         EndDrawing();
+        UnloadTexture(background.texture);
         UnloadTexture(canvas.texture);
         UnloadTexture(cursor.texture);
     }
