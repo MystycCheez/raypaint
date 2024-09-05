@@ -26,5 +26,4 @@ typedef struct Cursor {
     MousePos pos;
 }Cursor;
 
-
 #endif

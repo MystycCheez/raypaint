@@ -12,7 +12,10 @@ int main(void)
 
     Image square = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, RAYWHITE);
 
-    Brush brush = InitBrush(square, DEFAULT_BRUSH_SIZE);
+    Image circle = GenImageColor(512, 512, (Color){0, 0, 0, 0});
+    ImageDrawCircle(&circle, 256, 256, 256, RAYWHITE);
+
+    Brush brush = InitBrush(circle, DEFAULT_BRUSH_SIZE);
 
     Cursor cursor;
     cursor.image = brush.image;
@@ -73,11 +76,12 @@ int main(void)
             cursor.pos.current.x + 10, cursor.pos.current.y - 30, 30, RAYWHITE);
             if (0 != mouseWheelMove) {
                 brush.size += mouseWheelMove;
-                brush.size = Clamp(brush.size, 1, 30);
+                brush.size = Clamp(brush.size, 1, 60);
+                brush = InitBrush(circle, brush.size);
             }
         }
 
-        DrawTextureEx(cursor.texture, cursor.pos.current, 0.0, (float)brush.size / 10.0, WHITE);
+        DrawTextureEx(cursor.texture, cursor.pos.current, 0.0, (float)brush.size / brush.image.width, WHITE);
 
         EndDrawing();
         UnloadTexture(canvas.texture);
