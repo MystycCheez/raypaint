@@ -70,3 +70,34 @@ Background InitBackground()
 
     return background;
 }
+
+Button InitButton(Image image, Vector2 pos, bool state)
+{
+    Button button;
+
+    button.image = image;
+    button.pos = pos;
+    button.state = state;
+
+    button.collisionBox = (Rectangle){0, 0, button.image.width, button.image.height};
+
+    return button;
+}
+
+ColorBox InitColorBox(Color color, Vector2 pos, int size)
+{
+    ColorBox colorBox;
+
+    colorBox.image = GenImageColor(size, size, color);
+    colorBox.color = color;
+    colorBox.pos = pos;
+
+    colorBox.collisionBox = (Rectangle){0, 0, size, size};
+
+    return colorBox;
+}
+
+Slider InitSlider()
+{
+    
+}

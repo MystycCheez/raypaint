@@ -1,11 +1,11 @@
 #ifndef ETC_H
 #define ETC_H
 
-#define SCREEN_WIDTH 320 * 5
-#define SCREEN_HEIGHT 200 * 5
+#define SCREEN_WIDTH 320 * 6
+#define SCREEN_HEIGHT 200 * 6
 
-#define CANVAS_WIDTH 320 * 4
-#define CANVAS_HEIGHT 200 * 4
+#define CANVAS_WIDTH 320 * 5
+#define CANVAS_HEIGHT 200 * 5
 
 #define CANVAS_OFFSET 16
 
@@ -17,8 +17,8 @@ typedef struct Brush {
 }Brush;
 typedef struct Canvas {
     Image image;
-    Texture2D texture;
     Color color;
+    Texture2D texture;
 }Canvas;
 typedef struct Background {
     Image image;
@@ -31,8 +31,30 @@ typedef struct MousePos {
 }MousePos;
 typedef struct Cursor {
     Image image;
-    Texture2D texture;
     MousePos pos;
+    Texture2D texture;
 }Cursor;
+
+typedef struct Button {
+    Image image;
+    Vector2 pos;
+    Rectangle collisionBox;
+    bool state;
+    Texture2D texture;
+}Button;
+typedef struct Slider {
+    Image image;
+    float slidePos;
+    Vector2 pos;
+    Rectangle collisionBox;
+    Texture2D texture;
+}Slider;
+typedef struct ColorBox {
+    Image image;
+    Color color;
+    Vector2 pos;
+    Rectangle collisionBox;
+    Texture2D texture;
+}ColorBox;
 
 #endif

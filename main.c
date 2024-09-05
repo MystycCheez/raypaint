@@ -21,6 +21,9 @@ int main(void)
     Cursor cursor;
     cursor.image = brush.image;
 
+    ColorBox cbTest = InitColorBox(RED, 
+    (Vector2){32, CANVAS_HEIGHT + 80}, 64);
+
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
     assert(IsWindowReady());
 
@@ -62,6 +65,7 @@ int main(void)
         background.texture = LoadTextureFromImage(background.image);
         canvas.texture = LoadTextureFromImage(canvas.image);
         cursor.texture = LoadTextureFromImage(cursor.image);
+        cbTest.texture = LoadTextureFromImage(cbTest.image);
 
         DrawTexture(canvas.texture, CANVAS_OFFSET, CANVAS_OFFSET, WHITE);
 
@@ -91,12 +95,15 @@ int main(void)
             DrawTextureEx(cursor.texture, cursor.pos.current,
             0.0, (float)brush.size / brush.image.width, WHITE);
         }
+
         DrawTexture(background.texture, 0, 0, WHITE);
+        DrawTexture(cbTest.texture, cbTest.pos.x, cbTest.pos.y, WHITE);
 
         EndDrawing();
         UnloadTexture(background.texture);
         UnloadTexture(canvas.texture);
         UnloadTexture(cursor.texture);
+        UnloadTexture(cbTest.texture);
     }
 
     CloseWindow();
