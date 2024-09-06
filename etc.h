@@ -35,26 +35,4 @@ typedef struct Cursor {
     Texture2D texture;
 }Cursor;
 
-typedef struct Button {
-    Image image;
-    Vector2 pos;
-    Rectangle collisionBox;
-    bool state;
-    Texture2D texture;
-}Button;
-typedef struct Slider {
-    Image image;
-    float slidePos;
-    Vector2 pos;
-    Rectangle collisionBox;
-    Texture2D texture;
-}Slider;
-typedef struct ColorBox {
-    Image image;
-    Color color;
-    Vector2 pos;
-    Rectangle collisionBox;
-    Texture2D texture;
-}ColorBox;
-
 #endif

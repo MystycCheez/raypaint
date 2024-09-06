@@ -4,3 +4,4 @@ raypaint.exe
 raymath.h
 libraylib.dll
 functions.c
+raygui.h

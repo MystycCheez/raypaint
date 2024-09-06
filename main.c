@@ -4,6 +4,9 @@ int main(void)
 {
     SetTraceLogLevel(LOG_WARNING);
 
+    // printf("%d", GuiGetStyle(DEFAULT, TEXT_SIZE));
+    // exit(0);
+
     bool toggle_f1 = true;
     bool cursorWithinCanvas = false;
 
@@ -11,21 +14,27 @@ int main(void)
 
     Canvas canvas = InitCanvas(DARKGREEN);
 
-    Image square = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, RAYWHITE);
+    Image img_square = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, RAYWHITE);
 
-    Image circle = GenImageColor(512, 512, (Color){0, 0, 0, 0});
-    ImageDrawCircle(&circle, 256, 256, 256, RAYWHITE);
+    Image img_circle = GenImageColor(512, 512, (Color){0, 0, 0, 0});
+    ImageDrawCircle(&img_circle, 256, 256, 256, RAYWHITE);
 
-    Brush brush = InitBrush(circle, DEFAULT_BRUSH_SIZE);
+    Brush brush = InitBrush(img_circle, DEFAULT_BRUSH_SIZE);
 
     Cursor cursor;
     cursor.image = brush.image;
 
-    ColorBox cbTest = InitColorBox(RED, 
-    (Vector2){32, CANVAS_HEIGHT + 80}, 64);
+    // Color* colorTest;
+
+    // GuiColorPanel((Rectangle){CANVAS_WIDTH + 64, 64, 64, 64}, "test", colorTest);
+
+    // ColorBox cbTest = InitColorBox(RED, 
+    // (Vector2){32, CANVAS_HEIGHT + 80}, 64);
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
     assert(IsWindowReady());
+
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
 
     SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
     
@@ -65,7 +74,6 @@ int main(void)
         background.texture = LoadTextureFromImage(background.image);
         canvas.texture = LoadTextureFromImage(canvas.image);
         cursor.texture = LoadTextureFromImage(cursor.image);
-        cbTest.texture = LoadTextureFromImage(cbTest.image);
 
         DrawTexture(canvas.texture, CANVAS_OFFSET, CANVAS_OFFSET, WHITE);
 
@@ -87,7 +95,7 @@ int main(void)
             if (0 != mouseWheelMove) {
                 brush.size += mouseWheelMove;
                 brush.size = Clamp(brush.size, 1, 60);
-                brush = InitBrush(circle, brush.size);
+                brush = InitBrush(img_circle, brush.size);
             }
         }
 
@@ -97,13 +105,13 @@ int main(void)
         }
 
         DrawTexture(background.texture, 0, 0, WHITE);
-        DrawTexture(cbTest.texture, cbTest.pos.x, cbTest.pos.y, WHITE);
+        GuiButton((Rectangle){CANVAS_WIDTH + 64, 64, 90, 90}, "test");
+
 
         EndDrawing();
         UnloadTexture(background.texture);
         UnloadTexture(canvas.texture);
         UnloadTexture(cursor.texture);
-        UnloadTexture(cbTest.texture);
     }
 
     CloseWindow();
