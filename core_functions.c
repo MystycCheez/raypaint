@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "raylib.h"
 #include "raymath.h"
 
@@ -69,4 +71,10 @@ Background InitBackground()
     b2_border_size, LIGHTGRAY);
 
     return background;
+}
+
+void DrawTextWithShadow(const char* text, int posX, int posY, int fontSize, Color color, int offsetX, int offsetY, Color shadowColor)
+{
+    DrawText(text, posX + offsetX, posY + offsetY, fontSize, shadowColor);
+    DrawText(text, posX, posY, fontSize, color);
 }
