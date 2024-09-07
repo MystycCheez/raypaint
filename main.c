@@ -4,9 +4,6 @@ int main(void)
 {
     SetTraceLogLevel(LOG_WARNING);
 
-    // printf("%d", GuiGetStyle(DEFAULT, TEXT_SIZE));
-    // exit(0);
-
     bool toggle_f1 = true;
     bool cursorWithinCanvas = false;
     bool held_shift;
@@ -24,13 +21,6 @@ int main(void)
 
     Cursor cursor;
     cursor.image = brush.image;
-
-    // Color* colorTest;
-
-    // GuiColorPanel((Rectangle){CANVAS_WIDTH + 64, 64, 64, 64}, "test", colorTest);
-
-    // ColorBox cbTest = InitColorBox(RED, 
-    // (Vector2){32, CANVAS_HEIGHT + 80}, 64);
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
     assert(IsWindowReady());
