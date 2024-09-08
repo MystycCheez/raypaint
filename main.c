@@ -4,12 +4,10 @@ int main(void)
 {
     SetTraceLogLevel(LOG_WARNING);
 
-    int selected_brush = BRUSH_SQUARE;
-
     bool toggle_f1 = true;
     bool cursorWithinCanvas = false;
     bool held_shift = false;
-    bool brush_changed = false;
+    bool shape_changed = false;
 
     Background background = InitBackground();
 
@@ -17,11 +15,12 @@ int main(void)
 
     Image img_brushes[2];
 
-    img_brushes[BRUSH_SQUARE] = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, RAYWHITE);
-    img_brushes[BRUSH_CIRCLE] = GenImageColor(512, 512, (Color){0, 0, 0, 0});
-    ImageDrawCircle(&img_brushes[BRUSH_CIRCLE], 256, 256, 256, RAYWHITE);
+    img_brushes[SHAPE_SQUARE] = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE,DEFAULT_BRUSH_COLOR);
+    img_brushes[SHAPE_CIRCLE] = GenImageColor(512, 512, (Color){0, 0, 0, 0});
+    ImageDrawCircle(&img_brushes[SHAPE_CIRCLE], 256, 256, 256, DEFAULT_BRUSH_COLOR);
 
-    Brush brush = InitBrush(img_brushes[selected_brush], DEFAULT_BRUSH_SIZE);
+    Brush brush = InitBrush(img_brushes[DEFAULT_BRUSH_SHAPE],
+     DEFAULT_BRUSH_SHAPE, DEFAULT_BRUSH_TYPE, DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_COLOR);
 
     Cursor cursor;
     cursor.image = brush.image;
@@ -50,19 +49,19 @@ int main(void)
         if (IsKeyDown(KEY_C)) {ImageClearBackground(&canvas.image, canvas.color);}
         if (IsKeyDown(KEY_R)) {brush.size = 10;}
 
-        if (IsKeyDown(KEY_KP_1) && (selected_brush != BRUSH_SQUARE)) {
-            selected_brush = BRUSH_SQUARE;
-            brush_changed = true;
-        } else if (IsKeyDown(KEY_KP_2) && (selected_brush != BRUSH_CIRCLE)) {
-            selected_brush = BRUSH_CIRCLE;
-            brush_changed = true;
-        } else {brush_changed = false;}
+        if (IsKeyDown(KEY_KP_1) && (brush.shape != SHAPE_SQUARE)) {
+            brush.shape = SHAPE_SQUARE;
+            shape_changed = true;
+        } else if (IsKeyDown(KEY_KP_2) && (brush.shape != SHAPE_CIRCLE)) {
+            brush.shape = SHAPE_CIRCLE;
+            shape_changed = true;
+        } else {shape_changed = false;}
 
-        if (brush_changed) {
+        if (shape_changed) {
             if (brush.size == 1) {
-                brush = InitBrush(img_brushes[BRUSH_SQUARE], brush.size);
-                cursor.image = brush.image;
-            } else {brush = InitBrush(img_brushes[selected_brush], brush.size); cursor.image = brush.image;}
+                brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, DEFAULT_BRUSH_COLOR);
+            } else {brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, DEFAULT_BRUSH_COLOR);}
+            cursor.image = brush.image;
         }
 
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
@@ -70,11 +69,11 @@ int main(void)
             if (0 != mouseWheelMove) { // if-else within here is formatted like this for clarity
                 brush.size += mouseWheelMove;
                 brush.size = Clamp(brush.size, 1, 60);
-                if (selected_brush == BRUSH_CIRCLE) {
+                if (brush.shape == SHAPE_CIRCLE) {
                     if (brush.size == 1) // circle too small to draw at 1x1 pixel
-                    {brush = InitBrush(img_brushes[BRUSH_SQUARE], brush.size); cursor.image = brush.image;} 
+                    {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, DEFAULT_BRUSH_COLOR); cursor.image = brush.image;} 
                     else 
-                    {brush = InitBrush(img_brushes[BRUSH_CIRCLE], brush.size); cursor.image = brush.image;}
+                    {brush = InitBrush(img_brushes[SHAPE_CIRCLE], SHAPE_CIRCLE, BRUSH_BASIC, brush.size, DEFAULT_BRUSH_COLOR); cursor.image = brush.image;}
                 }
             }
         } else {held_shift = false;}
@@ -121,7 +120,7 @@ int main(void)
 
         DrawTexture(background.texture, 0, 0, WHITE);
         GuiButton((Rectangle){CANVAS_WIDTH + 64, 64, 90, 90}, "test");
-
+        GuiDrawIcon(ICON_BRUSH_PAINTER, CANVAS_WIDTH + 256, 64, 3, RAYWHITE);
 
         EndDrawing();
         UnloadTexture(background.texture);

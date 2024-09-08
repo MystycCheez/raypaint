@@ -3,16 +3,16 @@
 
 #define RAYGUI_IMPLEMENTATION
 
-#include "core_functions.c"
-#include "etc.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <stdint.h>
 
 #include "raylib.h"
 #include "raymath.h"
 #include "raygui.h"
 
-#include "stdio.h"
-
-#include <stdlib.h>
-#include <assert.h>
+#include "core_functions.c"
+#include "etc.h"
 
 #endif
