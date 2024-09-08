@@ -11,6 +11,11 @@
 
 #define DEFAULT_BRUSH_SIZE 10
 
+enum BrushShapes{
+    BRUSH_SQUARE,
+    BRUSH_CIRCLE,
+};
+
 typedef struct Brush {
     Image image;
     int size;

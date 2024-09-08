@@ -4,20 +4,24 @@ int main(void)
 {
     SetTraceLogLevel(LOG_WARNING);
 
+    int selected_brush = BRUSH_SQUARE;
+
     bool toggle_f1 = true;
     bool cursorWithinCanvas = false;
-    bool held_shift;
+    bool held_shift = false;
+    bool brush_changed = false;
 
     Background background = InitBackground();
 
     Canvas canvas = InitCanvas(DARKGREEN);
 
-    Image img_square = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, RAYWHITE);
+    Image img_brushes[2];
 
-    Image img_circle = GenImageColor(512, 512, (Color){0, 0, 0, 0});
-    ImageDrawCircle(&img_circle, 256, 256, 256, RAYWHITE);
+    img_brushes[BRUSH_SQUARE] = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, RAYWHITE);
+    img_brushes[BRUSH_CIRCLE] = GenImageColor(512, 512, (Color){0, 0, 0, 0});
+    ImageDrawCircle(&img_brushes[BRUSH_CIRCLE], 256, 256, 256, RAYWHITE);
 
-    Brush brush = InitBrush(img_circle, DEFAULT_BRUSH_SIZE);
+    Brush brush = InitBrush(img_brushes[selected_brush], DEFAULT_BRUSH_SIZE);
 
     Cursor cursor;
     cursor.image = brush.image;
@@ -43,11 +47,22 @@ int main(void)
 
         int mouseWheelMove = (int)GetMouseWheelMove();
 
-        if (IsKeyDown(KEY_C)) {
-            ImageClearBackground(&canvas.image, canvas.color);
-        }
-        if (IsKeyDown(KEY_R)) {
-            brush.size = 10;
+        if (IsKeyDown(KEY_C)) {ImageClearBackground(&canvas.image, canvas.color);}
+        if (IsKeyDown(KEY_R)) {brush.size = 10;}
+
+        if (IsKeyDown(KEY_KP_1) && (selected_brush != BRUSH_SQUARE)) {
+            selected_brush = BRUSH_SQUARE;
+            brush_changed = true;
+        } else if (IsKeyDown(KEY_KP_2) && (selected_brush != BRUSH_CIRCLE)) {
+            selected_brush = BRUSH_CIRCLE;
+            brush_changed = true;
+        } else {brush_changed = false;}
+
+        if (brush_changed) {
+            if (brush.size == 1) {
+                brush = InitBrush(img_brushes[BRUSH_SQUARE], brush.size);
+                cursor.image = brush.image;
+            } else {brush = InitBrush(img_brushes[selected_brush], brush.size); cursor.image = brush.image;}
         }
 
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
@@ -55,10 +70,12 @@ int main(void)
             if (0 != mouseWheelMove) { // if-else within here is formatted like this for clarity
                 brush.size += mouseWheelMove;
                 brush.size = Clamp(brush.size, 1, 60);
-                if (brush.size == 1)
-                {brush = InitBrush(img_square, brush.size); cursor.image = brush.image;} 
-                else 
-                {brush = InitBrush(img_circle, brush.size); cursor.image = brush.image;}
+                if (selected_brush == BRUSH_CIRCLE) {
+                    if (brush.size == 1) // circle too small to draw at 1x1 pixel
+                    {brush = InitBrush(img_brushes[BRUSH_SQUARE], brush.size); cursor.image = brush.image;} 
+                    else 
+                    {brush = InitBrush(img_brushes[BRUSH_CIRCLE], brush.size); cursor.image = brush.image;}
+                }
             }
         } else {held_shift = false;}
 
@@ -87,12 +104,14 @@ int main(void)
             toggle_f1 = !toggle_f1;
         }
         if (toggle_f1) {
-            DrawTextWithShadow("Shift + Scroll Wheel - Change brush size", 20, 20, 30, RAYWHITE, 5, 5, BLACK);
-            DrawTextWithShadow("C                         - Clear", 20, 50, 30, RAYWHITE, 5, 5, BLACK);
-            DrawTextWithShadow("R                         - Reset brush size", 20, 80, 30, RAYWHITE, 5, 5, BLACK);
-            DrawTextWithShadow("B                         - Brush", 20, 110, 30, RAYWHITE, 5, 5, BLACK);
-            DrawTextWithShadow("E                         - Erase", 20, 140, 30, RAYWHITE, 5, 5, BLACK);
-            DrawTextWithShadow("F1                        - Toggle this text", 20, 170, 30, RAYWHITE, 5, 5, BLACK);
+            DrawTextWithShadow("Shift + Scroll Wheel - Change brush size", 20, 20, 30, RAYWHITE, 3, 3, BLACK);
+            DrawTextWithShadow("C - Clear", 20, 50, 30, RAYWHITE, 3, 3, BLACK);
+            DrawTextWithShadow("R - Reset brush size", 20, 80, 30, RAYWHITE, 3, 3, BLACK);
+            DrawTextWithShadow("B - Brush", 20, 110, 30, RAYWHITE, 3, 3, BLACK);
+            DrawTextWithShadow("E - Erase", 20, 140, 30, RAYWHITE, 3, 3, BLACK);
+            DrawTextWithShadow("F1 - Toggle this text", 20, 170, 30, RAYWHITE, 3, 3, BLACK);
+            DrawTextWithShadow("NUMPAD 1 - Square brush", 20, 210, 30, RAYWHITE, 3, 3, BLACK);
+            DrawTextWithShadow("NUMPAD 2 - Circle brush", 20, 240, 30, RAYWHITE, 3, 3, BLACK);
         }
 
         if (cursorWithinCanvas) {
