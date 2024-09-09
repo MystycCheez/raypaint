@@ -56,7 +56,7 @@ Background InitBackground()
     int b2_border_size = 3;
 
     Background background;
-    background.image = GenImageGradientLinear(SCREEN_WIDTH, SCREEN_HEIGHT, 45, BLACK, DARKBLUE);    
+    background.image = GenImageGradientLinear(SCREEN_WIDTH, SCREEN_HEIGHT, 45, BLACK, DARKBLUE);
 
     ImageDrawRectangle(&background.image, CANVAS_OFFSET, CANVAS_OFFSET, 
     CANVAS_WIDTH, CANVAS_HEIGHT, (Color){0, 0, 0, 0});
@@ -67,6 +67,8 @@ Background InitBackground()
     ImageDrawRectangleLines(&background.image,
     (Rectangle){CANVAS_OFFSET - b2_border_size - 2, CANVAS_OFFSET - b2_border_size - 2, CANVAS_WIDTH + (b2_border_size * 2) + 4, CANVAS_HEIGHT + (b2_border_size * 2) + 4},
     b2_border_size, LIGHTGRAY);
+
+    background.texture = LoadTextureFromImage(background.image);
 
     return background;
 }

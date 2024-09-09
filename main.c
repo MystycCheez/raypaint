@@ -9,6 +9,9 @@ int main(void)
     bool held_shift = false;
     bool shape_changed = false;
 
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
+    assert(IsWindowReady());
+
     Background background = InitBackground();
 
     Canvas canvas = InitCanvas(DARKGREEN);
@@ -24,9 +27,6 @@ int main(void)
 
     Cursor cursor;
     cursor.image = brush.image;
-
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
-    assert(IsWindowReady());
 
     GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
 
@@ -67,10 +67,10 @@ int main(void)
 
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
             held_shift = true;
-            if (0 != mouseWheelMove) { // if-else within here is formatted like this for clarity
+            if (0 != mouseWheelMove) { 
                 brush.size += mouseWheelMove;
                 brush.size = Clamp(brush.size, 1, 60);
-                if (brush.shape == SHAPE_CIRCLE) {
+                if (brush.shape == SHAPE_CIRCLE) { // if-else below here is formatted like so for clarity
                     if (brush.size == 1) // circle too small to draw at 1x1 pixel
                     {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, DEFAULT_BRUSH_COLOR); cursor.image = brush.image;} 
                     else 
@@ -79,12 +79,11 @@ int main(void)
             }
         } else {held_shift = false;}
 
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {DrawBrush(canvas, brush, cursor.pos);}
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {DrawBrush(canvas, brush, cursor.pos);} 
 
         // Begin Drawing //
         BeginDrawing();
 
-        background.texture = LoadTextureFromImage(background.image);
         canvas.texture = LoadTextureFromImage(canvas.image);
         cursor.texture = LoadTextureFromImage(cursor.image);
 
@@ -117,10 +116,11 @@ int main(void)
         GuiDrawIcon(ICON_BRUSH_PAINTER, CANVAS_WIDTH + 256, 64, 3, RAYWHITE);
 
         EndDrawing();
-        UnloadTexture(background.texture);
         UnloadTexture(canvas.texture);
         UnloadTexture(cursor.texture);
     }
+
+    UnloadTexture(background.texture);
 
     CloseWindow();
 
