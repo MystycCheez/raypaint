@@ -12,7 +12,7 @@
 #include "raymath.h"
 #include "raygui.h"
 
-#include "core_functions.c"
 #include "etc.h"
+#include "core_functions.c"
 
 #endif

@@ -1,7 +1,4 @@
-#include "raylib.h"
-#include "raymath.h"
-
-#include "etc.h"
+#include "includes.h"
 
 void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
 { // TODO: Optimize drawing - Make it to where it doesn't need to resize every DrawBrush() call, somehow

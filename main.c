@@ -20,7 +20,7 @@ int main(void)
     ImageDrawCircle(&img_brushes[SHAPE_CIRCLE], 256, 256, 256, DEFAULT_BRUSH_COLOR);
 
     Brush brush = InitBrush(img_brushes[DEFAULT_BRUSH_SHAPE],
-     DEFAULT_BRUSH_SHAPE, DEFAULT_BRUSH_TYPE, DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_COLOR);
+    DEFAULT_BRUSH_SHAPE, DEFAULT_BRUSH_TYPE, DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_COLOR);
 
     Cursor cursor;
     cursor.image = brush.image;
@@ -43,6 +43,7 @@ int main(void)
         } else {ShowCursor();}
 
         cursor.pos.old = cursor.pos.current;
+        cursor.pos.current = GetMousePosition();
 
         int mouseWheelMove = (int)GetMouseWheelMove();
 
@@ -78,14 +79,7 @@ int main(void)
             }
         } else {held_shift = false;}
 
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-        cursor.pos.current = GetMousePosition();
-
-        DrawBrush(canvas, brush, cursor.pos);
-
-        } else if (IsMouseButtonUp(MOUSE_LEFT_BUTTON)) {
-            cursor.pos.current = GetMousePosition();
-        }
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {DrawBrush(canvas, brush, cursor.pos);}
 
         // Begin Drawing //
         BeginDrawing();
