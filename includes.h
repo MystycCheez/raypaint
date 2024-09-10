@@ -12,7 +12,6 @@
 #include "raymath.h"
 #include "raygui.h"
 
-#include "ripped_code.c"
 #include "etc.h"
 #include "core_functions.c"
 
