@@ -8,7 +8,20 @@ int main(void)
     bool cursorWithinCanvas = false;
     bool held_shift = false;
     bool shape_changed = false;
-    bool button_pressed = false;
+
+    bool btn_brush_pressed = false;
+    bool btn_canvas_pressed = false;
+    bool slider_r_moved = false;
+    bool slider_g_moved = false;
+    bool slider_b_moved = false;
+    
+    int selection = BRUSH;
+
+    float slider_rgb_r = 0.0;
+    float slider_rgb_g = 228.0;
+    float slider_rgb_b = 48.0;
+
+    Color slider_color = DEFAULT_BRUSH_COLOR;
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
     assert(IsWindowReady());
@@ -43,14 +56,33 @@ int main(void)
             HideCursor();
         } else {ShowCursor();}
 
-        if (button_pressed) {
-            Color randCol = (Color){rand() % 0x100, rand() % 0x100, rand() % 0x100, 0xFF};
-            if (!ColorIsEqual(brush.color, randCol)) {
+        if (btn_brush_pressed && (selection != BRUSH)){
+            slider_rgb_r = brush.color.r;
+            slider_rgb_g = brush.color.g;
+            slider_rgb_b = brush.color.b;
+            slider_color = brush.color;
+            selection = BRUSH;
+        }
+        if (btn_canvas_pressed) {
+            slider_rgb_r = canvas.color.r;
+            slider_rgb_g = canvas.color.g;
+            slider_rgb_b = canvas.color.b;
+            slider_color = canvas.color;
+            selection = CANVAS;
+        }
+
+        if (slider_r_moved || slider_g_moved || slider_b_moved) {
+            if (selection == BRUSH) {
                 for (uint8_t i = 0; i < NUM_BRUSH_SHAPES; i++)
-                {ImageColorReplace(&img_brushes[i], brush.color, randCol);}
+                {ImageColorReplace(&img_brushes[i], brush.color, slider_color);}
                 brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);
-                brush.color = randCol;
+                brush.color = slider_color;
                 cursor.image = ImageCopy(brush.image);
+            } else if (selection == CANVAS) {
+                canvas.color = slider_color;
+                Image temp_img = GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas.color);
+                canvas.tex_backgroundLayer = LoadTextureFromImage(temp_img);
+                UnloadImage(temp_img);
             }
         }
 
@@ -127,16 +159,16 @@ int main(void)
 
         DrawTexture(background.texture, 0, 0, WHITE);
         
-        if (GuiButton((Rectangle){CANVAS_WIDTH + 64, 64, 160, 80}, "Canvas")) {
-            UnloadTexture(canvas.tex_backgroundLayer);
-            canvas.color = (Color){rand() % 0x100, rand() % 0x100, rand() % 0x100, 0xFF};
-            Image temp_img = GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas.color);
-            canvas.tex_backgroundLayer = LoadTextureFromImage(temp_img);
-            UnloadImage(temp_img);
-        }
-        if (GuiButton((Rectangle){SCREEN_WIDTH - 160 - 64 + 16, 64, 160, 80}, "Brush")) {
-            button_pressed = true;
-        } else {button_pressed = false;}
+        btn_canvas_pressed = GuiButton((Rectangle){CANVAS_OFFSET + CANVAS_WIDTH + 8 + (SCALAR * 4), 64, 160, 80}, "Canvas");
+        btn_brush_pressed = GuiButton((Rectangle){SCREEN_WIDTH - (SCALAR * 4) - 160, 64, 160, 80}, "Brush");
+
+        slider_r_moved = GuiSlider((Rectangle){CANVAS_OFFSET + CANVAS_WIDTH + 8 + (SCALAR * 8), 240, 320 - (SCALAR * 12), 16}, 
+        "0", "255", &slider_rgb_r, (float)0, (float)255);
+        slider_g_moved = GuiSlider((Rectangle){CANVAS_OFFSET + CANVAS_WIDTH + 8 + (SCALAR * 8), 280, 320 - (SCALAR * 12), 16}, 
+        "0", "255", &slider_rgb_g, (float)0, (float)255);
+        slider_b_moved = GuiSlider((Rectangle){CANVAS_OFFSET + CANVAS_WIDTH + 8 + (SCALAR * 8), 320, 320 - (SCALAR * 12), 16}, 
+        "0", "255", &slider_rgb_b, (float)0, (float)255);
+        slider_color = (Color){slider_rgb_r, slider_rgb_g, slider_rgb_b, 0xFF};
 
         EndDrawing();
         UnloadTexture(canvas.tex_paintLayer);

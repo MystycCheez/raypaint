@@ -1,11 +1,13 @@
 #ifndef ETC_H
 #define ETC_H
 
-#define SCREEN_WIDTH 320 * 6
-#define SCREEN_HEIGHT 200 * 6
+#define SCALAR 5
 
-#define CANVAS_WIDTH 240 * 6
-#define CANVAS_HEIGHT 160 * 6
+#define SCREEN_WIDTH 320 * SCALAR
+#define SCREEN_HEIGHT 200 * SCALAR
+
+#define CANVAS_WIDTH 240 * SCALAR
+#define CANVAS_HEIGHT 160 * SCALAR
 
 #define CANVAS_OFFSET 16
 
@@ -24,6 +26,10 @@ enum BrushShapes{
 enum BrushTypes{
     BRUSH_BASIC,
     BRUSH_ERASE
+};
+enum SelectionTypes{
+    BRUSH,
+    CANVAS
 };
 
 typedef struct Brush {
