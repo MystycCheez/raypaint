@@ -1,7 +1,8 @@
 #include "includes.h"
+#include "raylib.h"
 
 void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
-{ // TODO: Optimize drawing - Make it to where it doesn't need to resize every DrawBrush() call, somehow
+{ // TODO: Optimize if possible
     Vector2 brushPos = mousePos.old;
 
     Rectangle brush_src_rect = 
@@ -45,7 +46,8 @@ Canvas InitCanvas(Color color)
 {
     Canvas canvas;
     canvas.color = color;
-    canvas.image = GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas.color);
+    canvas.image = GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, (Color){0, 0, 0, 0});
+    canvas.tex_backgroundLayer = LoadTextureFromImage(GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas.color));
 
     return canvas;
 }

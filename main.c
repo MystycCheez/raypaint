@@ -18,8 +18,8 @@ int main(void)
 
     Image img_brushes[2];
 
-    img_brushes[SHAPE_SQUARE] = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE,DEFAULT_BRUSH_COLOR);
-    img_brushes[SHAPE_CIRCLE] = GenImageColor(512, 512, (Color){0, 0, 0, 0});
+    img_brushes[SHAPE_SQUARE] = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_COLOR);
+    img_brushes[SHAPE_CIRCLE] = GenImageColor(512, 512, BLANK);
     ImageDrawCircle(&img_brushes[SHAPE_CIRCLE], 256, 256, 256, DEFAULT_BRUSH_COLOR);
 
     Brush brush = InitBrush(img_brushes[DEFAULT_BRUSH_SHAPE],
@@ -36,6 +36,8 @@ int main(void)
 
     while(!WindowShouldClose())
     {
+        cursor.texture = LoadTextureFromImage(cursor.image);
+
         cursorWithinCanvas = CheckCollisionPointRec(cursor.pos.current, 
         (Rectangle){CANVAS_OFFSET, CANVAS_OFFSET, CANVAS_WIDTH, CANVAS_HEIGHT});
         if (cursorWithinCanvas) {
@@ -47,7 +49,8 @@ int main(void)
 
         int mouseWheelMove = (int)GetMouseWheelMove();
 
-        if (IsKeyDown(KEY_C)) {ImageClearBackground(&canvas.image, canvas.color);}
+        if (IsKeyDown(KEY_C)) {ImageClearBackground(&canvas.image, BLANK);}
+
         if (IsKeyDown(KEY_R)) {brush.size = 10;}
 
         if (IsKeyDown(KEY_KP_1) && (brush.shape != SHAPE_SQUARE)) {
@@ -67,7 +70,7 @@ int main(void)
 
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
             held_shift = true;
-            if (0 != mouseWheelMove) { 
+            if (0 != mouseWheelMove) {
                 brush.size += mouseWheelMove;
                 brush.size = Clamp(brush.size, 1, 60);
                 if (brush.shape == SHAPE_CIRCLE) { // if-else below here is formatted like so for clarity
@@ -84,10 +87,10 @@ int main(void)
         // Begin Drawing //
         BeginDrawing();
 
-        canvas.texture = LoadTextureFromImage(canvas.image);
-        cursor.texture = LoadTextureFromImage(cursor.image);
+        canvas.tex_paintLayer = LoadTextureFromImage(canvas.image);
 
-        DrawTexture(canvas.texture, CANVAS_OFFSET, CANVAS_OFFSET, WHITE);
+        DrawTexture(canvas.tex_backgroundLayer, CANVAS_OFFSET, CANVAS_OFFSET, WHITE);
+        DrawTexture(canvas.tex_paintLayer, CANVAS_OFFSET, CANVAS_OFFSET, WHITE);
 
         if (held_shift) {DrawTextWithShadow(TextFormat("%d", brush.size), 
         cursor.pos.current.x + 10, cursor.pos.current.y - 30, 30, RAYWHITE, 3, 3, BLACK);}
@@ -112,15 +115,28 @@ int main(void)
         }
 
         DrawTexture(background.texture, 0, 0, WHITE);
-        GuiButton((Rectangle){CANVAS_WIDTH + 64, 64, 90, 90}, "test");
-        GuiDrawIcon(ICON_BRUSH_PAINTER, CANVAS_WIDTH + 256, 64, 3, RAYWHITE);
+        
+        if (GuiButton((Rectangle){CANVAS_WIDTH + 64, 64, 160, 80}, "Canvas")) {
+            UnloadTexture(canvas.tex_backgroundLayer);
+            canvas.color = (Color){rand() % 0x100, rand() % 0x100, rand() % 0x100, 0xFF};
+            canvas.tex_backgroundLayer = LoadTextureFromImage(GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas.color));
+        }
+        if (GuiButton((Rectangle){SCREEN_WIDTH - 160 - 64 + 16, 64, 160, 80}, "Brush")) {
+            Color randCol = (Color){rand() % 0x100, rand() % 0x100, rand() % 0x100, 0xFF};
+            if (!ColorIsEqual(brush.color, randCol)) {
+                ImageColorReplace(&brush.image, brush.color, randCol);
+                brush.color = randCol;
+                cursor.image = brush.image;
+            }
+        }
 
         EndDrawing();
-        UnloadTexture(canvas.texture);
+        UnloadTexture(canvas.tex_paintLayer);
         UnloadTexture(cursor.texture);
     }
 
     UnloadTexture(background.texture);
+    UnloadTexture(canvas.tex_backgroundLayer);
 
     CloseWindow();
 

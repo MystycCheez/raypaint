@@ -10,7 +10,7 @@
 #define CANVAS_OFFSET 16
 
 #define DEFAULT_BRUSH_SIZE 10
-#define DEFAULT_BRUSH_COLOR RAYWHITE
+#define DEFAULT_BRUSH_COLOR GREEN
 #define DEFAULT_BRUSH_SHAPE SHAPE_SQUARE
 #define DEFAULT_BRUSH_TYPE BRUSH_BASIC
 
@@ -33,7 +33,8 @@ typedef struct Brush {
 typedef struct Canvas {
     Image image;
     Color color;
-    Texture2D texture;
+    Texture2D tex_paintLayer;
+    Texture2D tex_backgroundLayer;
 }Canvas;
 typedef struct Background {
     Image image;
