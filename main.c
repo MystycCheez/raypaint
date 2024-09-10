@@ -36,8 +36,6 @@ int main(void)
 
     while(!WindowShouldClose())
     {
-        cursor.texture = LoadTextureFromImage(cursor.image);
-
         cursorWithinCanvas = CheckCollisionPointRec(cursor.pos.current, 
         (Rectangle){CANVAS_OFFSET, CANVAS_OFFSET, CANVAS_WIDTH, CANVAS_HEIGHT});
         if (cursorWithinCanvas) {
@@ -63,8 +61,8 @@ int main(void)
 
         if (shape_changed) {
             if (brush.size == 1) {
-                brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, DEFAULT_BRUSH_COLOR);
-            } else {brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, DEFAULT_BRUSH_COLOR);}
+                brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color);
+            } else {brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);}
             cursor.image = brush.image;
         }
 
@@ -75,9 +73,9 @@ int main(void)
                 brush.size = Clamp(brush.size, 1, 60);
                 if (brush.shape == SHAPE_CIRCLE) { // if-else below here is formatted like so for clarity
                     if (brush.size == 1) // circle too small to draw at 1x1 pixel
-                    {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, DEFAULT_BRUSH_COLOR); cursor.image = brush.image;} 
+                    {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color); cursor.image = brush.image;} 
                     else 
-                    {brush = InitBrush(img_brushes[SHAPE_CIRCLE], SHAPE_CIRCLE, BRUSH_BASIC, brush.size, DEFAULT_BRUSH_COLOR); cursor.image = brush.image;}
+                    {brush = InitBrush(img_brushes[SHAPE_CIRCLE], SHAPE_CIRCLE, BRUSH_BASIC, brush.size, brush.color); cursor.image = brush.image;}
                 }
             }
         } else {held_shift = false;}
@@ -87,6 +85,7 @@ int main(void)
         // Begin Drawing //
         BeginDrawing();
 
+        cursor.texture = LoadTextureFromImage(cursor.image);
         canvas.tex_paintLayer = LoadTextureFromImage(canvas.image);
 
         DrawTexture(canvas.tex_backgroundLayer, CANVAS_OFFSET, CANVAS_OFFSET, WHITE);
@@ -119,7 +118,9 @@ int main(void)
         if (GuiButton((Rectangle){CANVAS_WIDTH + 64, 64, 160, 80}, "Canvas")) {
             UnloadTexture(canvas.tex_backgroundLayer);
             canvas.color = (Color){rand() % 0x100, rand() % 0x100, rand() % 0x100, 0xFF};
-            canvas.tex_backgroundLayer = LoadTextureFromImage(GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas.color));
+            Image temp_img = GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas.color);
+            canvas.tex_backgroundLayer = LoadTextureFromImage(temp_img);
+            UnloadImage(temp_img);
         }
         if (GuiButton((Rectangle){SCREEN_WIDTH - 160 - 64 + 16, 64, 160, 80}, "Brush")) {
             Color randCol = (Color){rand() % 0x100, rand() % 0x100, rand() % 0x100, 0xFF};
