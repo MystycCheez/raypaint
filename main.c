@@ -8,6 +8,7 @@ int main(void)
     bool cursorWithinCanvas = false;
     bool held_shift = false;
     bool shape_changed = false;
+    bool button_pressed = false;
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
     assert(IsWindowReady());
@@ -26,7 +27,7 @@ int main(void)
     DEFAULT_BRUSH_SHAPE, DEFAULT_BRUSH_TYPE, DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_COLOR);
 
     Cursor cursor;
-    cursor.image = brush.image;
+    cursor.image = ImageCopy(brush.image);
 
     GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
 
@@ -41,6 +42,17 @@ int main(void)
         if (cursorWithinCanvas) {
             HideCursor();
         } else {ShowCursor();}
+
+        if (button_pressed) {
+            Color randCol = (Color){rand() % 0x100, rand() % 0x100, rand() % 0x100, 0xFF};
+            if (!ColorIsEqual(brush.color, randCol)) {
+                for (uint8_t i = 0; i < NUM_BRUSH_SHAPES; i++)
+                {ImageColorReplace(&img_brushes[i], brush.color, randCol);}
+                brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);
+                brush.color = randCol;
+                cursor.image = ImageCopy(brush.image);
+            }
+        }
 
         cursor.pos.old = cursor.pos.current;
         cursor.pos.current = GetMousePosition();
@@ -63,7 +75,7 @@ int main(void)
             if (brush.size == 1) {
                 brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color);
             } else {brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);}
-            cursor.image = brush.image;
+            cursor.image = ImageCopy(brush.image);
         }
 
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
@@ -73,9 +85,9 @@ int main(void)
                 brush.size = Clamp(brush.size, 1, 60);
                 if (brush.shape == SHAPE_CIRCLE) { // if-else below here is formatted like so for clarity
                     if (brush.size == 1) // circle too small to draw at 1x1 pixel
-                    {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color); cursor.image = brush.image;} 
+                    {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color); cursor.image = ImageCopy(brush.image);} 
                     else 
-                    {brush = InitBrush(img_brushes[SHAPE_CIRCLE], SHAPE_CIRCLE, BRUSH_BASIC, brush.size, brush.color); cursor.image = brush.image;}
+                    {brush = InitBrush(img_brushes[SHAPE_CIRCLE], SHAPE_CIRCLE, BRUSH_BASIC, brush.size, brush.color); cursor.image = ImageCopy(brush.image);}
                 }
             }
         } else {held_shift = false;}
@@ -123,13 +135,8 @@ int main(void)
             UnloadImage(temp_img);
         }
         if (GuiButton((Rectangle){SCREEN_WIDTH - 160 - 64 + 16, 64, 160, 80}, "Brush")) {
-            Color randCol = (Color){rand() % 0x100, rand() % 0x100, rand() % 0x100, 0xFF};
-            if (!ColorIsEqual(brush.color, randCol)) {
-                ImageColorReplace(&brush.image, brush.color, randCol);
-                brush.color = randCol;
-                cursor.image = brush.image;
-            }
-        }
+            button_pressed = true;
+        } else {button_pressed = false;}
 
         EndDrawing();
         UnloadTexture(canvas.tex_paintLayer);

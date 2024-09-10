@@ -33,7 +33,7 @@ void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
 Brush InitBrush(Image image, uint8_t shape, uint8_t type, uint8_t size, Color color)
 {
     Brush brush;
-    brush.image = image;
+    brush.image = ImageCopy(image);
     brush.shape = shape;
     brush.type = type;
     brush.size = size;
