@@ -68,17 +68,9 @@ int main(void)
 
         if (slider_r_moved || slider_g_moved || slider_b_moved) {
             if (selection == BRUSH) {
-                for (uint8_t i = 0; i < NUM_BRUSH_SHAPES; i++)
-                {ImageColorReplace(&img_brushes[i], brush.color, ConvertFromColorFloat(sliderColor));}
-                brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);
-                brush.color = ConvertFromColorFloat(sliderColor);
+                SetBrushColor(&brush, ConvertFromColorFloat(sliderColor));
                 cursor.image = ImageCopy(brush.image);
-            } else if (selection == CANVAS) {
-                canvas.color = ConvertFromColorFloat(sliderColor);
-                Image temp_img = GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas.color);
-                canvas.tex_backgroundLayer = LoadTextureFromImage(temp_img);
-                UnloadImage(temp_img);
-            }
+            } else if (selection == CANVAS) {SetCanvasColor(&canvas, ConvertFromColorFloat(sliderColor));}
         }
 
         cursor.pos.old = cursor.pos.current;
@@ -124,11 +116,18 @@ int main(void)
             else if (IsKeyPressed(KEY_Y)) {TraverseImageNodeForward(&CanvasImageHead);}
         }
 
+        if      (brush.type == BRUSH_BASIC) {BeginBlendMode(BLEND_ALPHA);} 
+        else if (brush.type == BRUSH_ERASE) {BeginBlendMode(BLEND_SUBTRACT_COLORS);
+        brush.color = WHITE;
+        ImageColorReplace(&img_brushes[brush.shape], brush.color, ConvertFromColorFloat(sliderColor));
+        }
+
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && cursorWithinCanvas) {
             ReplaceNextImageNode(&CanvasImageHead, CanvasImageHead->image);
             TraverseImageNodeForward(&CanvasImageHead);
         }
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {DrawBrush(CanvasImageHead->image, brush, cursor.pos);}
+            
 
         // Begin Drawing //
         BeginDrawing();

@@ -105,3 +105,16 @@ ColorFloat ConvertToColorFloat(Color color)
     return colorFloat;
 }
 
+void SetCanvasColor(Canvas* canvas, Color color)
+{
+    canvas->color = color;
+    Image temp_img = GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas->color);
+    canvas->tex_backgroundLayer = LoadTextureFromImage(temp_img);
+    UnloadImage(temp_img);
+}
+
+void SetBrushColor(Brush* brush, Color color)
+{
+    ImageColorReplace(&brush->image, brush->color, color);
+    brush->color = color;
+}
