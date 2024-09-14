@@ -1,6 +1,8 @@
 #ifndef ETC_H
 #define ETC_H
 
+#define DARKERBLUE (Color){16, 32, 96, 255}
+
 #define SCALAR 5
 
 #define SCREEN_WIDTH 320 * SCALAR
@@ -12,7 +14,7 @@
 #define CANVAS_OFFSET 16
 
 #define DEFAULT_BRUSH_SIZE 10
-#define DEFAULT_BRUSH_COLOR GREEN
+#define DEFAULT_BRUSH_COLOR RAYWHITE
 #define DEFAULT_BRUSH_SHAPE SHAPE_SQUARE
 #define DEFAULT_BRUSH_TYPE BRUSH_BASIC
 
@@ -31,6 +33,19 @@ enum SelectionTypes{
     BRUSH,
     CANVAS
 };
+
+typedef struct ColorFloat {
+    float r;
+    float g;
+    float b;
+    float a;
+}ColorFloat;
+
+typedef struct ImageNode {
+    Image image;
+    struct ImageNode* next;
+    struct ImageNode* prev;
+}ImageNode;
 
 typedef struct Brush {
     Image image;

@@ -17,20 +17,21 @@ int main(void)
     
     int selection = BRUSH;
 
-    float slider_rgb_r = 0.0;
-    float slider_rgb_g = 228.0;
-    float slider_rgb_b = 48.0;
-
-    Color slider_color = DEFAULT_BRUSH_COLOR;
+    ColorFloat sliderColor;
+    sliderColor = ConvertToColorFloat(DEFAULT_BRUSH_COLOR);    
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
     assert(IsWindowReady());
 
     Background background = InitBackground();
 
-    Canvas canvas = InitCanvas(DARKGREEN);
+    Canvas canvas = InitCanvas(DARKERBLUE);
 
-    Image img_brushes[2];
+    ImageNode* CanvasImageTail = NewImageNode(canvas.image);
+    ImageNode* CanvasImageHead = CanvasImageTail;
+    assert(CanvasImageHead != NULL);
+
+    Image img_brushes[NUM_BRUSH_SHAPES];
 
     img_brushes[SHAPE_SQUARE] = GenImageColor(DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_SIZE, DEFAULT_BRUSH_COLOR);
     img_brushes[SHAPE_CIRCLE] = GenImageColor(512, 512, BLANK);
@@ -57,29 +58,23 @@ int main(void)
         } else {ShowCursor();}
 
         if (btn_brush_pressed && (selection != BRUSH)){
-            slider_rgb_r = brush.color.r;
-            slider_rgb_g = brush.color.g;
-            slider_rgb_b = brush.color.b;
-            slider_color = brush.color;
+            sliderColor = ConvertToColorFloat(brush.color);
             selection = BRUSH;
         }
-        if (btn_canvas_pressed) {
-            slider_rgb_r = canvas.color.r;
-            slider_rgb_g = canvas.color.g;
-            slider_rgb_b = canvas.color.b;
-            slider_color = canvas.color;
+        if (btn_canvas_pressed && (selection != CANVAS)) {
+            sliderColor = ConvertToColorFloat(canvas.color);
             selection = CANVAS;
         }
 
         if (slider_r_moved || slider_g_moved || slider_b_moved) {
             if (selection == BRUSH) {
                 for (uint8_t i = 0; i < NUM_BRUSH_SHAPES; i++)
-                {ImageColorReplace(&img_brushes[i], brush.color, slider_color);}
+                {ImageColorReplace(&img_brushes[i], brush.color, ConvertFromColorFloat(sliderColor));}
                 brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);
-                brush.color = slider_color;
+                brush.color = ConvertFromColorFloat(sliderColor);
                 cursor.image = ImageCopy(brush.image);
             } else if (selection == CANVAS) {
-                canvas.color = slider_color;
+                canvas.color = ConvertFromColorFloat(sliderColor);
                 Image temp_img = GenImageColor(CANVAS_WIDTH, CANVAS_HEIGHT, canvas.color);
                 canvas.tex_backgroundLayer = LoadTextureFromImage(temp_img);
                 UnloadImage(temp_img);
@@ -91,7 +86,7 @@ int main(void)
 
         int mouseWheelMove = (int)GetMouseWheelMove();
 
-        if (IsKeyDown(KEY_C)) {ImageClearBackground(&canvas.image, BLANK);}
+        if (IsKeyDown(KEY_C)) {ImageClearBackground(&CanvasImageHead->image, BLANK);}
 
         if (IsKeyDown(KEY_R)) {brush.size = 10;}
 
@@ -124,13 +119,22 @@ int main(void)
             }
         } else {held_shift = false;}
 
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {DrawBrush(canvas, brush, cursor.pos);} 
+        if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
+            if      (IsKeyPressed(KEY_Z)) {TraverseImageNodeBackward(&CanvasImageHead);}
+            else if (IsKeyPressed(KEY_Y)) {TraverseImageNodeForward(&CanvasImageHead);}
+        }
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && cursorWithinCanvas) {
+            ReplaceNextImageNode(&CanvasImageHead, CanvasImageHead->image);
+            TraverseImageNodeForward(&CanvasImageHead);
+        }
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {DrawBrush(CanvasImageHead->image, brush, cursor.pos);}
 
         // Begin Drawing //
         BeginDrawing();
 
         cursor.texture = LoadTextureFromImage(cursor.image);
-        canvas.tex_paintLayer = LoadTextureFromImage(canvas.image);
+        canvas.tex_paintLayer = LoadTextureFromImage(CanvasImageHead->image);
 
         DrawTexture(canvas.tex_backgroundLayer, CANVAS_OFFSET, CANVAS_OFFSET, WHITE);
         DrawTexture(canvas.tex_paintLayer, CANVAS_OFFSET, CANVAS_OFFSET, WHITE);
@@ -163,12 +167,12 @@ int main(void)
         btn_brush_pressed = GuiButton((Rectangle){SCREEN_WIDTH - (SCALAR * 4) - 160, 64, 160, 80}, "Brush");
 
         slider_r_moved = GuiSlider((Rectangle){CANVAS_OFFSET + CANVAS_WIDTH + 8 + (SCALAR * 8), 240, 320 - (SCALAR * 12), 16}, 
-        "0", "255", &slider_rgb_r, (float)0, (float)255);
+        "0", "255", &sliderColor.r, (float)0, (float)255);
         slider_g_moved = GuiSlider((Rectangle){CANVAS_OFFSET + CANVAS_WIDTH + 8 + (SCALAR * 8), 280, 320 - (SCALAR * 12), 16}, 
-        "0", "255", &slider_rgb_g, (float)0, (float)255);
+        "0", "255", &sliderColor.g, (float)0, (float)255);
         slider_b_moved = GuiSlider((Rectangle){CANVAS_OFFSET + CANVAS_WIDTH + 8 + (SCALAR * 8), 320, 320 - (SCALAR * 12), 16}, 
-        "0", "255", &slider_rgb_b, (float)0, (float)255);
-        slider_color = (Color){slider_rgb_r, slider_rgb_g, slider_rgb_b, 0xFF};
+        "0", "255", &sliderColor.b, (float)0, (float)255);
+        sliderColor = (ColorFloat){sliderColor.r, sliderColor.g, sliderColor.b, 0xFF};
 
         EndDrawing();
         UnloadTexture(canvas.tex_paintLayer);

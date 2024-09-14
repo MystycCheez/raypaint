@@ -1,7 +1,7 @@
 #include "includes.h"
 #include "raylib.h"
 
-void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
+void DrawBrush(Image canvasImage, Brush brush, MousePos mousePos)
 { // TODO: Optimize if possible
     Vector2 brushPos = mousePos.old;
 
@@ -16,7 +16,7 @@ void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
     ImageResizeNN(&reszied_img, brush.size, brush.size);
 
     if (Vector2Equals((Vector2){0, 0}, GetMouseDelta())) {
-        ImageDraw(&canvas.image, reszied_img, brush_resized_rect, brush_dest_rect, WHITE);
+        ImageDraw(&canvasImage, reszied_img, brush_resized_rect, brush_dest_rect, WHITE);
     }
     else {
         float dist_start_and_finish = Vector2Distance(mousePos.old, mousePos.current);
@@ -25,7 +25,7 @@ void DrawBrush(Canvas canvas, Brush brush, MousePos mousePos)
             brushPos = Vector2MoveTowards(brushPos, mousePos.current, 1.0);
             brush_dest_rect.x = brushPos.x - CANVAS_OFFSET;
             brush_dest_rect.y = brushPos.y - CANVAS_OFFSET;
-            ImageDraw(&canvas.image, reszied_img, brush_resized_rect, brush_dest_rect, WHITE);
+            ImageDraw(&canvasImage, reszied_img, brush_resized_rect, brush_dest_rect, WHITE);
         }
     }
 }
@@ -80,3 +80,28 @@ void DrawTextWithShadow(const char* text, int posX, int posY, int fontSize, Colo
     DrawText(text, posX + offsetX, posY + offsetY, fontSize, shadowColor);
     DrawText(text, posX, posY, fontSize, color);
 }
+
+Color ConvertFromColorFloat(ColorFloat colorFloat)
+{
+    Color color;
+
+    color.r = (float)colorFloat.r;
+    color.g = (float)colorFloat.g;
+    color.b = (float)colorFloat.b;
+    color.a = (float)colorFloat.a;
+
+    return color;
+}
+
+ColorFloat ConvertToColorFloat(Color color)
+{
+    ColorFloat colorFloat;
+
+    colorFloat.r = (int)color.r;
+    colorFloat.g = (int)color.g;
+    colorFloat.b = (int)color.b;
+    colorFloat.a = (int)color.a;
+
+    return colorFloat;
+}
+
