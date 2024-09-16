@@ -4,10 +4,13 @@ int main(void)
 {
     SetTraceLogLevel(LOG_WARNING);
 
-    bool toggle_f1 = true;
     bool cursorWithinCanvas = false;
+
+    bool brush_shape_changed = false;
+    bool brush_type_changed = false;
+
+    bool toggle_f1 = true;
     bool held_shift = false;
-    bool shape_changed = false;
 
     bool btn_brush_pressed = false;
     bool btn_canvas_pressed = false;
@@ -18,7 +21,7 @@ int main(void)
     int selection = BRUSH;
 
     ColorFloat sliderColor;
-    sliderColor = ConvertToColorFloat(DEFAULT_BRUSH_COLOR);    
+    sliderColor = ConvertToColorFloat(DEFAULT_BRUSH_COLOR);
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib paint");
     assert(IsWindowReady());
@@ -51,11 +54,16 @@ int main(void)
 
     while(!WindowShouldClose())
     {
+        cursor.pos.old = cursor.pos.current;
+        cursor.pos.current = GetMousePosition();
+
+        int mouseWheelMove = (int)GetMouseWheelMove();
+
         cursorWithinCanvas = CheckCollisionPointRec(cursor.pos.current, 
         (Rectangle){CANVAS_OFFSET, CANVAS_OFFSET, CANVAS_WIDTH, CANVAS_HEIGHT});
-        if (cursorWithinCanvas) {
-            HideCursor();
-        } else {ShowCursor();}
+
+        if (cursorWithinCanvas)
+        {HideCursor();} else {ShowCursor();}
 
         if (btn_brush_pressed && (selection != BRUSH)){
             sliderColor = ConvertToColorFloat(brush.color);
@@ -73,27 +81,25 @@ int main(void)
             } else if (selection == CANVAS) {SetCanvasColor(&canvas, ConvertFromColorFloat(sliderColor));}
         }
 
-        cursor.pos.old = cursor.pos.current;
-        cursor.pos.current = GetMousePosition();
-
-        int mouseWheelMove = (int)GetMouseWheelMove();
-
+        // Down for cool effect lol
         if (IsKeyDown(KEY_C)) {ImageClearBackground(&CanvasImageHead->image, BLANK);}
 
-        if (IsKeyDown(KEY_R)) {brush.size = 10;}
+        if (IsKeyPressed(KEY_R)) {brush.size = 10;}
 
-        if (IsKeyDown(KEY_KP_1) && (brush.shape != SHAPE_SQUARE)) {
+        if (IsKeyPressed(KEY_KP_1) && (brush.shape != SHAPE_SQUARE)) {
             brush.shape = SHAPE_SQUARE;
-            shape_changed = true;
-        } else if (IsKeyDown(KEY_KP_2) && (brush.shape != SHAPE_CIRCLE)) {
+            brush_shape_changed = true;
+        } else if (IsKeyPressed(KEY_KP_2) && (brush.shape != SHAPE_CIRCLE)) {
             brush.shape = SHAPE_CIRCLE;
-            shape_changed = true;
-        } else {shape_changed = false;}
+            brush_shape_changed = true;
+        } else {brush_shape_changed = false;}
 
-        if (shape_changed) {
-            if (brush.size == 1) {
-                brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color);
-            } else {brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);}
+        if (brush_shape_changed) {
+            if (brush.size == 1)
+            {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color);}
+            else
+            {brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);}
+            ImageColorReplace(&brush.image, DEFAULT_BRUSH_COLOR, ConvertFromColorFloat(sliderColor));
             cursor.image = ImageCopy(brush.image);
         }
 
@@ -102,12 +108,14 @@ int main(void)
             if (0 != mouseWheelMove) {
                 brush.size += mouseWheelMove;
                 brush.size = Clamp(brush.size, 1, 60);
-                if (brush.shape == SHAPE_CIRCLE) { // if-else below here is formatted like so for clarity
-                    if (brush.size == 1) // circle too small to draw at 1x1 pixel
-                    {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color); cursor.image = ImageCopy(brush.image);} 
-                    else 
-                    {brush = InitBrush(img_brushes[SHAPE_CIRCLE], SHAPE_CIRCLE, BRUSH_BASIC, brush.size, brush.color); cursor.image = ImageCopy(brush.image);}
+                if (brush.shape == SHAPE_CIRCLE) {
+                    if (brush.size == 1) { // circle too small to draw at 1x1 pixel 
+                    brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color);
+                } else {
+                    brush = InitBrush(img_brushes[SHAPE_CIRCLE], SHAPE_CIRCLE, BRUSH_BASIC, brush.size, brush.color);}
                 }
+                ImageColorReplace(&brush.image, DEFAULT_BRUSH_COLOR, ConvertFromColorFloat(sliderColor));
+                cursor.image = ImageCopy(brush.image);
             }
         } else {held_shift = false;}
 
@@ -116,18 +124,15 @@ int main(void)
             else if (IsKeyPressed(KEY_Y)) {TraverseImageNodeForward(&CanvasImageHead);}
         }
 
-        if      (brush.type == BRUSH_BASIC) {BeginBlendMode(BLEND_ALPHA);} 
-        else if (brush.type == BRUSH_ERASE) {BeginBlendMode(BLEND_SUBTRACT_COLORS);
-        brush.color = WHITE;
-        ImageColorReplace(&img_brushes[brush.shape], brush.color, ConvertFromColorFloat(sliderColor));
-        }
+        if (IsKeyPressed(KEY_B)) {brush.type = BRUSH_BASIC; brush_type_changed = true;}
+        if (IsKeyPressed(KEY_E)) {brush.type = BRUSH_ERASE; brush_type_changed = true;}
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && cursorWithinCanvas) {
             ReplaceNextImageNode(&CanvasImageHead, CanvasImageHead->image);
             TraverseImageNodeForward(&CanvasImageHead);
         }
+        
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {DrawBrush(CanvasImageHead->image, brush, cursor.pos);}
-            
 
         // Begin Drawing //
         BeginDrawing();

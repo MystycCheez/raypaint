@@ -9,14 +9,14 @@ void DrawBrush(Image canvasImage, Brush brush, MousePos mousePos)
     {0, 0, brush.image.width, brush.image.height};
     Rectangle brush_dest_rect =
     {mousePos.current.x - CANVAS_OFFSET, mousePos.current.y - CANVAS_OFFSET, brush.size, brush.size};
-    Rectangle brush_resized_rect =
+    Rectangle resized_brush_rect =
     {0, 0, brush.size, brush.size};
 
-    Image reszied_img = ImageFromImage(brush.image, brush_src_rect);
-    ImageResizeNN(&reszied_img, brush.size, brush.size);
+    Image reszied_brush_img = ImageFromImage(brush.image, brush_src_rect);
+    ImageResizeNN(&reszied_brush_img, brush.size, brush.size);
 
     if (Vector2Equals((Vector2){0, 0}, GetMouseDelta())) {
-        ImageDraw(&canvasImage, reszied_img, brush_resized_rect, brush_dest_rect, WHITE);
+        ImageDraw(&canvasImage, reszied_brush_img, resized_brush_rect, brush_dest_rect, WHITE);
     }
     else {
         float dist_start_and_finish = Vector2Distance(mousePos.old, mousePos.current);
@@ -25,7 +25,7 @@ void DrawBrush(Image canvasImage, Brush brush, MousePos mousePos)
             brushPos = Vector2MoveTowards(brushPos, mousePos.current, 1.0);
             brush_dest_rect.x = brushPos.x - CANVAS_OFFSET;
             brush_dest_rect.y = brushPos.y - CANVAS_OFFSET;
-            ImageDraw(&canvasImage, reszied_img, brush_resized_rect, brush_dest_rect, WHITE);
+            ImageDraw(&canvasImage, reszied_brush_img, resized_brush_rect, brush_dest_rect, WHITE);
         }
     }
 }
