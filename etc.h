@@ -21,18 +21,18 @@
 #define NUM_BRUSH_SHAPES 2
 #define NUM_BRUSH_TYPES 2
 
-enum BrushShapes{
+typedef enum BrushShape{
     SHAPE_SQUARE,
     SHAPE_CIRCLE,
-};
-enum BrushTypes{
+}BrushShape;
+typedef enum BrushType{
     BRUSH_BASIC,
     BRUSH_ERASE
-};
-enum SelectionTypes{
+}BrushType;
+typedef enum SelectionType{
     BRUSH,
     CANVAS
-};
+}SelectionType;
 
 typedef struct ColorFloat {
     float r;

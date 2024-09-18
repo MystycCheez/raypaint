@@ -1,8 +1,40 @@
 #include "includes.h"
 #include "raylib.h"
 
+// Not a raylib func, no pointer image dst
+void ImageDrawBrush(Image dstImg, Image srcImg, Rectangle srcRect, Rectangle dstRect, BrushType BrushType)
+{
+    Color imgCol;
+    bool matchedCol;
+
+    Image resizedImg = ImageCopy(srcImg);
+    ImageCrop(&resizedImg, srcRect);
+    ImageResizeNN(&resizedImg, dstRect.width, dstRect.height);
+    for (int i = 0; i < resizedImg.width * resizedImg.height; i++)
+        {
+            imgCol = GetImageColor(resizedImg, i % resizedImg.height, i / resizedImg.height);
+            matchedCol = !ColorIsEqual(imgCol, BLANK);
+            if (matchedCol) {
+                switch (BrushType) {
+                case BRUSH_BASIC:
+                    ImageDrawPixel(&dstImg,
+                    (i % resizedImg.height) + dstRect.x,
+                    (i / resizedImg.height) + dstRect.y, 
+                    imgCol);
+                    break;
+                case BRUSH_ERASE:
+                ImageDrawPixel(&dstImg,
+                    (i % resizedImg.height) + dstRect.x,
+                    (i / resizedImg.height) + dstRect.y, 
+                    BLANK);
+                    break;
+                }
+            }
+        }
+}
+
 void DrawBrush(Image canvasImage, Brush brush, MousePos mousePos)
-{ // TODO: Optimize if possible
+{
     Vector2 brushPos = mousePos.old;
 
     Rectangle brush_src_rect = 
@@ -16,7 +48,7 @@ void DrawBrush(Image canvasImage, Brush brush, MousePos mousePos)
     ImageResizeNN(&reszied_brush_img, brush.size, brush.size);
 
     if (Vector2Equals((Vector2){0, 0}, GetMouseDelta())) {
-        ImageDraw(&canvasImage, reszied_brush_img, resized_brush_rect, brush_dest_rect, WHITE);
+        ImageDrawBrush(canvasImage, reszied_brush_img, resized_brush_rect, brush_dest_rect, brush.type);
     }
     else {
         float dist_start_and_finish = Vector2Distance(mousePos.old, mousePos.current);
@@ -25,7 +57,7 @@ void DrawBrush(Image canvasImage, Brush brush, MousePos mousePos)
             brushPos = Vector2MoveTowards(brushPos, mousePos.current, 1.0);
             brush_dest_rect.x = brushPos.x - CANVAS_OFFSET;
             brush_dest_rect.y = brushPos.y - CANVAS_OFFSET;
-            ImageDraw(&canvasImage, reszied_brush_img, resized_brush_rect, brush_dest_rect, WHITE);
+            ImageDrawBrush(canvasImage, reszied_brush_img, resized_brush_rect, brush_dest_rect, brush.type);
         }
     }
 }

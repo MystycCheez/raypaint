@@ -127,6 +127,11 @@ int main(void)
         if (IsKeyPressed(KEY_B)) {brush.type = BRUSH_BASIC; brush_type_changed = true;}
         if (IsKeyPressed(KEY_E)) {brush.type = BRUSH_ERASE; brush_type_changed = true;}
 
+        if (brush_type_changed) {
+            if (brush.type == BRUSH_BASIC) {}
+            else if (brush.type == BRUSH_ERASE) {}
+        }
+
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && cursorWithinCanvas) {
             ReplaceNextImageNode(&CanvasImageHead, CanvasImageHead->image);
             TraverseImageNodeForward(&CanvasImageHead);
