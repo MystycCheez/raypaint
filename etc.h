@@ -21,6 +21,10 @@
 #define NUM_BRUSH_SHAPES 2
 #define NUM_BRUSH_TYPES 2
 
+typedef enum ToolType{
+    TOOL_BRUSH,
+    TOOL_FILL
+}ToolType;
 typedef enum BrushShape{
     SHAPE_SQUARE,
     SHAPE_CIRCLE,
@@ -49,8 +53,8 @@ typedef struct ImageNode {
 
 typedef struct Brush {
     Image image;
-    uint8_t shape;
-    uint8_t type;
+    BrushShape shape;
+    BrushType type;
     uint8_t size;
     Color color;
 }Brush;

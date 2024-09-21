@@ -33,6 +33,36 @@ void ImageDrawBrush(Image dstImg, Image srcImg, Rectangle srcRect, Rectangle dst
         }
 }
 
+void FloodFill(Image* dstImg, Color fillColor, Color initColor, Vector2 pos)
+{
+    Vector2* stack = malloc(CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(Vector2) * 4);
+    if (stack == NULL) {
+        printf("Failed to allocate memory for flood fill!\n");
+        exit(EXIT_FAILURE);
+    }
+
+    int stackPos = 0;
+
+    stack[stackPos++] = pos;
+
+    while (stackPos > 0)
+    {
+        // printf("%d\n", stackPos);
+        Vector2 currPos = stack[--stackPos];
+
+        if ((currPos.x >= 0) && (currPos.y >= 0) && (currPos.x < dstImg->width) && (currPos.y < dstImg->height)
+        && !ColorIsEqual(GetImageColor(*dstImg, currPos.x, currPos.y), fillColor)
+        && ColorIsEqual(GetImageColor(*dstImg, currPos.x, currPos.y), initColor)) {
+            ImageDrawPixelV(*&dstImg, currPos, fillColor);
+            stack[stackPos++] = (Vector2){currPos.x + 1, currPos.y};
+            stack[stackPos++] = (Vector2){currPos.x - 1, currPos.y};
+            stack[stackPos++] = (Vector2){currPos.x, currPos.y + 1};
+            stack[stackPos++] = (Vector2){currPos.x, currPos.y - 1};
+        }
+    }
+    free(stack);
+}
+
 void DrawBrush(Image canvasImage, Brush brush, MousePos mousePos)
 {
     Vector2 brushPos = mousePos.old;

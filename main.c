@@ -19,6 +19,7 @@ int main(void)
     bool slider_b_moved = false;
     
     int selection = BRUSH;
+    ToolType currentTool = TOOL_BRUSH;
 
     ColorFloat sliderColor;
     sliderColor = ConvertToColorFloat(DEFAULT_BRUSH_COLOR);
@@ -48,8 +49,6 @@ int main(void)
 
     GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
 
-    SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-    
     SetTargetFPS(144);
 
     while(!WindowShouldClose())
@@ -65,47 +64,69 @@ int main(void)
         if (cursorWithinCanvas)
         {HideCursor();} else {ShowCursor();}
 
-        if (btn_brush_pressed && (selection != BRUSH)){
-            sliderColor = ConvertToColorFloat(brush.color);
-            selection = BRUSH;
-        }
-        if (btn_canvas_pressed && (selection != CANVAS)) {
-            sliderColor = ConvertToColorFloat(canvas.color);
-            selection = CANVAS;
-        }
-
-        if (slider_r_moved || slider_g_moved || slider_b_moved) {
-            if (selection == BRUSH) {
-                SetBrushColor(&brush, ConvertFromColorFloat(sliderColor));
-                cursor.image = ImageCopy(brush.image);
-            } else if (selection == CANVAS) {SetCanvasColor(&canvas, ConvertFromColorFloat(sliderColor));}
-        }
-
         // Down for cool effect lol
         if (IsKeyDown(KEY_C)) {ImageClearBackground(&CanvasImageHead->image, BLANK);}
 
-        if (IsKeyPressed(KEY_R)) {brush.size = 10;}
+        if (IsKeyDown(KEY_F) && (currentTool != TOOL_FILL)) {currentTool = TOOL_FILL;}
+        if (IsKeyDown(KEY_B) && (currentTool != TOOL_BRUSH)) {currentTool = TOOL_BRUSH;}
 
-        if (IsKeyPressed(KEY_KP_1) && (brush.shape != SHAPE_SQUARE)) {
-            brush.shape = SHAPE_SQUARE;
-            brush_shape_changed = true;
-        } else if (IsKeyPressed(KEY_KP_2) && (brush.shape != SHAPE_CIRCLE)) {
-            brush.shape = SHAPE_CIRCLE;
-            brush_shape_changed = true;
-        } else {brush_shape_changed = false;}
+        if (currentTool == TOOL_BRUSH) {
+            if (btn_brush_pressed && (selection != BRUSH)){
+                sliderColor = ConvertToColorFloat(brush.color);
+                selection = BRUSH;
+            }
+            if (btn_canvas_pressed && (selection != CANVAS)) {
+                sliderColor = ConvertToColorFloat(canvas.color);
+                selection = CANVAS;
+            }
 
-        if (brush_shape_changed) {
-            if (brush.size == 1)
-            {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color);}
-            else
-            {brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);}
-            ImageColorReplace(&brush.image, DEFAULT_BRUSH_COLOR, ConvertFromColorFloat(sliderColor));
-            cursor.image = ImageCopy(brush.image);
+            if (slider_r_moved || slider_g_moved || slider_b_moved) {
+                if (selection == BRUSH) {
+                    SetBrushColor(&brush, ConvertFromColorFloat(sliderColor));
+                    cursor.image = ImageCopy(brush.image);
+                } else if (selection == CANVAS) {SetCanvasColor(&canvas, ConvertFromColorFloat(sliderColor));}
+            }
+
+            if (IsKeyPressed(KEY_R)) {brush.size = 10;}
+
+            if (IsKeyPressed(KEY_KP_1) && (brush.shape != SHAPE_SQUARE)) {
+                brush.shape = SHAPE_SQUARE;
+                brush_shape_changed = true;
+            } else if (IsKeyPressed(KEY_KP_2) && (brush.shape != SHAPE_CIRCLE)) {
+                brush.shape = SHAPE_CIRCLE;
+                brush_shape_changed = true;
+            } else {brush_shape_changed = false;}
+
+            if (brush_shape_changed) {
+                if (brush.size == 1)
+                {brush = InitBrush(img_brushes[SHAPE_SQUARE], SHAPE_SQUARE, BRUSH_BASIC, brush.size, brush.color);}
+                else
+                {brush = InitBrush(img_brushes[brush.shape], brush.shape, BRUSH_BASIC, brush.size, brush.color);}
+                ImageColorReplace(&brush.image, DEFAULT_BRUSH_COLOR, ConvertFromColorFloat(sliderColor));
+                cursor.image = ImageCopy(brush.image);
+            }
         }
 
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
             held_shift = true;
-            if (0 != mouseWheelMove) {
+        } else {held_shift = false;}
+
+        if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
+            if      (IsKeyPressed(KEY_Z)) {TraverseImageNodeBackward(&CanvasImageHead);}
+            else if (IsKeyPressed(KEY_Y)) {TraverseImageNodeForward(&CanvasImageHead);}
+        }
+
+        if (currentTool == TOOL_BRUSH) {
+            if (IsKeyPressed(KEY_B)) {brush.type = BRUSH_BASIC; brush_type_changed = true;}
+            if (IsKeyPressed(KEY_E)) {brush.type = BRUSH_ERASE; brush_type_changed = true;}
+
+            if (brush_type_changed) {
+                if (brush.type == BRUSH_BASIC) {}
+                else if (brush.type == BRUSH_ERASE) {}
+            }
+
+            if (held_shift) {
+                if (0 != mouseWheelMove) {
                 brush.size += mouseWheelMove;
                 brush.size = Clamp(brush.size, 1, 60);
                 if (brush.shape == SHAPE_CIRCLE) {
@@ -116,30 +137,25 @@ int main(void)
                 }
                 ImageColorReplace(&brush.image, DEFAULT_BRUSH_COLOR, ConvertFromColorFloat(sliderColor));
                 cursor.image = ImageCopy(brush.image);
+                }
             }
-        } else {held_shift = false;}
-
-        if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
-            if      (IsKeyPressed(KEY_Z)) {TraverseImageNodeBackward(&CanvasImageHead);}
-            else if (IsKeyPressed(KEY_Y)) {TraverseImageNodeForward(&CanvasImageHead);}
         }
 
-        if (IsKeyPressed(KEY_B)) {brush.type = BRUSH_BASIC; brush_type_changed = true;}
-        if (IsKeyPressed(KEY_E)) {brush.type = BRUSH_ERASE; brush_type_changed = true;}
-
-        if (brush_type_changed) {
-            if (brush.type == BRUSH_BASIC) {}
-            else if (brush.type == BRUSH_ERASE) {}
-        }
-
+        
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && cursorWithinCanvas) {
             ReplaceNextImageNode(&CanvasImageHead, CanvasImageHead->image);
             TraverseImageNodeForward(&CanvasImageHead);
         }
-        
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {DrawBrush(CanvasImageHead->image, brush, cursor.pos);}
+        if (currentTool == TOOL_FILL) {
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && cursorWithinCanvas) {
+                Color initColor = GetImageColor(CanvasImageHead->image, cursor.pos.current.x, cursor.pos.current.y);
+                Vector2 OffsetPos = (Vector2){cursor.pos.current.x - CANVAS_OFFSET, cursor.pos.current.y - CANVAS_OFFSET};
+                FloodFill(&CanvasImageHead->image, brush.color, initColor, OffsetPos);}
+        }
+        if (currentTool == TOOL_BRUSH) {
+            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && cursorWithinCanvas) {DrawBrush(CanvasImageHead->image, brush, cursor.pos);}
+        }
 
-        // Begin Drawing //
         BeginDrawing();
 
         cursor.texture = LoadTextureFromImage(cursor.image);
