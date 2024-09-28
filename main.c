@@ -176,9 +176,10 @@ int main(void)
             DrawTextWithShadow("R - Reset brush size", 20, 80, 30, RAYWHITE, 3, 3, BLACK);
             DrawTextWithShadow("B - Brush", 20, 110, 30, RAYWHITE, 3, 3, BLACK);
             DrawTextWithShadow("E - Erase", 20, 140, 30, RAYWHITE, 3, 3, BLACK);
-            DrawTextWithShadow("F1 - Toggle this text", 20, 170, 30, RAYWHITE, 3, 3, BLACK);
+            DrawTextWithShadow("F - Fill", 20, 170, 30, RAYWHITE, 3, 3, BLACK);
             DrawTextWithShadow("NUMPAD 1 - Square brush", 20, 210, 30, RAYWHITE, 3, 3, BLACK);
             DrawTextWithShadow("NUMPAD 2 - Circle brush", 20, 240, 30, RAYWHITE, 3, 3, BLACK);
+            DrawTextWithShadow("F1 - Toggle this text", 20, 280, 30, RAYWHITE, 3, 3, BLACK);
         }
 
         if (cursorWithinCanvas) {

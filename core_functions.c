@@ -33,9 +33,10 @@ void ImageDrawBrush(Image dstImg, Image srcImg, Rectangle srcRect, Rectangle dst
         }
 }
 
+// TODO: Improve this!
 void FloodFill(Image* dstImg, Color fillColor, Color initColor, Vector2 pos)
 {
-    Vector2* stack = malloc(CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(Vector2) * 4);
+    Vector2* stack = malloc(CANVAS_WIDTH * CANVAS_HEIGHT * sizeof(Vector2) * 2);
     if (stack == NULL) {
         printf("Failed to allocate memory for flood fill!\n");
         exit(EXIT_FAILURE);
